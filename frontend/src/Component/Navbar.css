@@ -33,5 +33,6 @@
 
   .nav-right a:hover,
   .end:hover {
-    text-decoration: underline;
+    text-decoration: none;
+    color: #3f51f8;
   }
