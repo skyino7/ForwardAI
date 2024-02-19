@@ -1,9 +1,12 @@
-import logo from './logo.svg';
 import './App.css';
+import Login from './pages/login';
 
 function App() {
   return (
-    <h1>Hello</h1>
+    <>
+      <Login />
+      <h1>Forward AI+</h1>
+    </>
   );
 }
 
