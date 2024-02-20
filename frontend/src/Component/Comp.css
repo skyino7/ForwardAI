@@ -128,3 +128,39 @@
     border-radius: 5px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
   }
+
+  /* .offer {
+    height: 300px;
+    background-color: #050F6C;
+  } */
+
+  .offer {
+    background-color: #050F6C;
+    padding: 50px 50px 100px 50px;
+    color: #fff;
+  }
+
+  .offer h3 {
+    font-weight: 500;
+    text-transform: uppercase;
+  }
+
+
+  .offer-m {
+    display: grid;
+    height: 150px;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+  }
+
+  .column {
+    background-color: transparent;
+    padding: 20px;
+    border-radius: 25px;
+    border: #fff 1px solid;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+
+  .column h3 {
+    font-weight: 400;
+  }
