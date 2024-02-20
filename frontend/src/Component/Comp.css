@@ -56,7 +56,7 @@
     align-items: center;
     /* text-align: center; */
     /* justify-items: center; */
-    justify-content: center;
+    justify-content: space-evenly;
     padding: 50px;
     border: #050F6C 1px solid;
   }
@@ -87,12 +87,29 @@
     color: #050F6C;
   }
 
-  .data button {
+  /* .data button {
     border: 2px solid #050F6C;
     border-radius: 10px;
     padding: 10px;
     background-color: transparent;
     margin-top: 20px;
+  } */
+
+  .get-started-btn {
+    background-color: transparent;
+    color: #050F6C;
+    padding: 10px 20px;
+    border: 2px solid #050F6C;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    margin-top: 50px;
+    font-size: 15px;
+  }
+
+  .get-started-btn:hover {
+    background-color: #050F6C;
+    color: #fff;
   }
 
   .analytics {

@@ -11,7 +11,7 @@ const Banner = () => {
             <h3>Forward AI+</h3>
             <h1>DATA SPEAKS</h1>
             <p>LET’S HELP YOU UNDERSTAND IT</p>
-            <button><FontAwesomeIcon icon={faArrowCircleRight} /> Get Started</button>
+            <button className='get-started-btn'><FontAwesomeIcon icon={faArrowCircleRight} /> Get Started</button>
         </div>
         <div className="analytics">
             <img src={dataImg} alt="Analytics" />
