@@ -164,3 +164,9 @@
   .column h3 {
     font-weight: 400;
   }
+
+  .offer-m :hover {
+    background-color: #fff;
+    /* border: #fff 5px solid; */
+    color: #050F6C;
+  }
