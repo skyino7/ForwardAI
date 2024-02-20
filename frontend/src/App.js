@@ -5,7 +5,7 @@ function App() {
   return (
     <>
       <Login />
-      <h1>Forward AI+</h1>
+      {/* <h1>Forward AI+</h1> */}
     </>
   );
 }

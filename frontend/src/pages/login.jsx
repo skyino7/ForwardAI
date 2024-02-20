@@ -9,7 +9,7 @@ const login = () => {
         <Navbar />
         <Banner />
         <Offer />
-        <p className='login'>login</p>
+        {/* <p className='login'>login</p> */}
     </>
   )
 }
