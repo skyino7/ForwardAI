@@ -188,3 +188,14 @@
   .chospac {
     padding-top: 50px;
   }
+
+  .clients {
+    background-color: #050F6C;
+    color: #fff;
+    padding: 50px 50px 100px 50px;
+  }
+
+  .clients h3 {
+    text-transform: uppercase;
+    font-weight: 500;
+  }
