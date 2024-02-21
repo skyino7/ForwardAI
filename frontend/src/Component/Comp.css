@@ -167,7 +167,6 @@
 
   .offer-m :hover {
     background-color: #fff;
-    /* border: #fff 5px solid; */
     color: #050F6C;
   }
 
@@ -192,9 +191,7 @@
   .column-choose {
     background-color: transparent;
     padding: 20px;
-    /* border-radius: 25px; */
     border: #fff 1px solid;
-    /* box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); */
   }
 
   .chospac {
