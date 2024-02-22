@@ -204,7 +204,7 @@
   .clients h3 {
     text-transform: uppercase;
     font-weight: 500;
-    margin-left: 100px;
+    margin-left: 10px;
   }
 
   /* .person {
@@ -217,12 +217,15 @@
     display: flex;
     flex-direction: column;
     gap: 0px;
-    margin-left: 100px;
-    margin-right: 100px;
+    margin-left: 10px;
+    margin-right: 10px;
     margin-top: 50px;
     padding: 20px;
     border-radius: 50px;
-    border: #fff 1px solid;
+    /* border: #fff 4px solid; */
+    box-shadow: 0 0.5px 5px 5px rgb(255, 255, 255);
+    background-color: #D9D9D9;
+    color: #050F6C;
   }
 
   .content {
@@ -232,24 +235,25 @@
   }
 
   .person {
-    width: 100px; /* Set the width of the image */
-    height: 100px; /* Set the height of the image */
-    border-radius: 50%; /* Make the image circular */
-    margin-right: 10px; /* Add space between image and text */
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    margin-right: 10px;
   }
 
   .description {
-    padding: 10px; /* Add padding to the description */
+    padding: 10px;
   }
 
   .text {
     display: flex;
-    flex-direction: column; /* Align text vertically */
+    flex-direction: column;
   }
 
   .text h4,
   .text h3,
   .text h5 {
-    margin: 0; /* Remove default margin */
+    margin: 0;
+    text-transform: uppercase;
   }
 

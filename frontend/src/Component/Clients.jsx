@@ -23,9 +23,9 @@ const Clients = () => {
                 <div className='content'>
                     <img className='person' src={Person} alt="image" />
                     <div className="text">
-                        <h4>John Doe</h4>
-                        <h3>pizzadoe, accra</h3>
-                        <h5>Chief executive officer</h5>
+                        <h4>SCOTT PARKER</h4>
+                        <h3>ANALYTICA ENT.</h3>
+                        <h5>Chief FINANCIAL officer</h5>
                     </div>
                 </div>
                 <div className='description'>
@@ -36,9 +36,9 @@ const Clients = () => {
                 <div className='content'>
                     <img className='person' src={Person} alt="image" />
                     <div className="text">
-                        <h4>John Doe</h4>
-                        <h3>pizzadoe, accra</h3>
-                        <h5>Chief executive officer</h5>
+                        <h4>Levi wood</h4>
+                        <h3>datamine comp.</h3>
+                        <h5>senior analyst</h5>
                     </div>
                 </div>
                 <div className='description'>
