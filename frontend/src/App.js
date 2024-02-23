@@ -1,10 +1,18 @@
 import './App.css';
-import Login from './pages/login';
+import Banner from './Component/Banner';
+import Navbar from './Component/Navbar';
+import Offer from './Component/Offer';
+import Choose from './Component/Choose';
+import Clients from './Component/Clients';
 
 function App() {
   return (
     <>
-      <Login />
+      <Navbar />
+      <Banner />
+      <Offer />
+      <Choose />
+      <Clients />
       {/* <h1>Forward AI+</h1> */}
     </>
   );
