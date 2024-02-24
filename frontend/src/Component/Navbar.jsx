@@ -1,5 +1,7 @@
-import React from 'react'
+import React from 'react';
+import { Link } from 'react-router-dom';
 import './Comp.css';
+import login from '../pages/login';
 
 const navbar = () => {
   return (
@@ -12,7 +14,7 @@ const navbar = () => {
             <a href='#'>Solutions</a>
             <a href='#'>Contact</a>
         </div>
-        <p className='end'>Sign Up</p>
+        <p className='end' Link to="/login">Sign Up</p>
     </div>
   )
 }
