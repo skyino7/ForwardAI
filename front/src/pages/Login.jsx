@@ -1,11 +1,16 @@
 import React from 'react'
 
-const login = () => {
+const Login = () => {
   return (
     <>
-      <h3>Login</h3>
+      <h1>Login</h1>
+      <form>
+        <input type="text" placeholder="Username" />
+        <input type="password" placeholder="Password" />
+        <button type="submit">Login</button>
+      </form>
     </>
   )
 }
 
-export default login
+export default Login

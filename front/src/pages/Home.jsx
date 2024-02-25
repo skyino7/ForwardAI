@@ -1,8 +1,17 @@
 import React from 'react'
+import Banner from '../Component/Banner'
+import Choose from '../Component/Choose'
+import Offer from '../Component/Offer'
+import Clients from '../Component/Clients'
 
 const Home = () => {
   return (
-    <div>Home</div>
+    <>
+        <Banner />
+        <Offer />
+        <Choose />
+        <Clients />
+    </>
   )
 }
 

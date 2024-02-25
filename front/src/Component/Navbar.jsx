@@ -1,21 +1,20 @@
 import React from 'react';
 import './Comp.css';
-// import Login from './pages/login';
-// import { Link } from "react-router-dom";
+// import Login from "./pages/Login";
+import { Outlet, Link } from "react-router-dom";
 
 const navbar = () => {
   return (
     <div className='navbar'>
         <p>Forward AI+</p>
         <div className='nav-right'>
-            <a href='#'>Home</a>
-            <a href='#'>About</a>
-            <a href='#'>Features</a>
-            <a href='#'>Solutions</a>
-            <a href='#'>Contact</a>
+          <li><Link to="/">Home</Link></li>
+          <li><Link to="/about">About</Link></li>
+          <li><Link to="/features">Features</Link></li>
+          <li><Link to="/solutions">Solutions</Link></li>
+          <li><Link to="/contact">Contact</Link></li>
         </div>
-        <a className='end' href="./pages/login">Sign Up</a>
-        {/* <Link to="./pages/login" /> */}
+        <p className='end'><Link to="/login">Sign Up</Link></p>
     </div>
   )
 }

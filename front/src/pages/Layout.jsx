@@ -1,10 +1,15 @@
 import React from 'react'
-// import { Outlet, Link } from "react-router-dom";
-import navbar from '../Component/Navbar';
+import { Outlet } from "react-router-dom";
+import Navbar from '../Component/Navbar';
+import Banner from '../Component/Banner';
 
 const Layout = () => {
   return (
-    navbar
+    <>
+      <Navbar />
+      {/* <Banner /> */}
+      <Outlet />
+    </>
   )
 }
 

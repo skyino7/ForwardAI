@@ -26,6 +26,7 @@ import ReactDOM from "react-dom/client";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Layout from "./pages/Layout";
 import Home from "./pages/Home";
+import Login from "./pages/Login";
 
 function App() {
   return (
@@ -33,11 +34,11 @@ function App() {
       <Routes>
         <Route path="/" element={<Layout/>}>
           <Route index element={<Home/>} />
-          {/* <Route index element={<About/>} />
-          <Route index element={<Features/>} />
+          <Route path="/login" Component={Login} />
+          {/* <Route index element={<Features/>} />
           <Route index element={<Solutions/>} />
           <Route index element={<Contact/>} />
-          <Route index element={<Signup/>} /> */}
+          <Route index element={<Signup/>} />  */}
         </Route>
       </Routes>
     </BrowserRouter>
