@@ -38,6 +38,14 @@
       color: #66a5f8;
     }
 
+    li {
+        list-style: none;
+    }
+
+    .navbar a {
+        text-decoration: none;
+    }
+
 
     /* .banner {
       display: flex;
