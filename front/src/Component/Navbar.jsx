@@ -1,6 +1,7 @@
 import React from 'react';
 import './Comp.css';
-import login from '../../../frontend-err/src/pages/login';
+// import Login from './pages/login';
+// import { Link } from "react-router-dom";
 
 const navbar = () => {
   return (
@@ -13,7 +14,8 @@ const navbar = () => {
             <a href='#'>Solutions</a>
             <a href='#'>Contact</a>
         </div>
-        <a className='end' href={login}>Sign Up</a>
+        <a className='end' href="./pages/login">Sign Up</a>
+        {/* <Link to="./pages/login" /> */}
     </div>
   )
 }
