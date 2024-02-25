@@ -22,23 +22,25 @@
 //   );
 // }
 
-import './App.css';
-import Banner from './Component/Banner';
-import Navbar from './Component/Navbar';
-import Offer from './Component/Offer';
-import Choose from './Component/Choose';
-import Clients from './Component/Clients';
+import ReactDOM from "react-dom/client";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import Layout from "./pages/Layout";
+import Home from "./pages/Home";
 
 function App() {
   return (
-    <>
-      <Navbar />
-      <Banner />
-      <Offer />
-      <Choose />
-      <Clients />
-      {/* <h1>Forward AI+</h1> */}
-    </>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<Layout/>}>
+          <Route index element={<Home/>} />
+          {/* <Route index element={<About/>} />
+          <Route index element={<Features/>} />
+          <Route index element={<Solutions/>} />
+          <Route index element={<Contact/>} />
+          <Route index element={<Signup/>} /> */}
+        </Route>
+      </Routes>
+    </BrowserRouter>
   );
 }
 
