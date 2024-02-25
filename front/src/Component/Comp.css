@@ -46,6 +46,10 @@
         text-decoration: none;
     }
 
+    .navbar p {
+        text-transform: uppercase;
+    }
+
 
     /* .banner {
       display: flex;
