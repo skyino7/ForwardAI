@@ -1,20 +1,64 @@
-import React from 'react'
-import { Link } from 'react-router-dom'
+import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 
 const Signup = () => {
+
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    password: '',
+    confirmPassword: '',
+  });
+
+  const handleChange = (event) => {
+    setFormData({
+      ...formData,
+      [event.target.name]: event.target.value,
+    });
+  };
+
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+
+    try {
+      const response = await fetch('/signup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData),
+      });
+
+      if (response.ok) {
+        console.log('User Created Successfully');
+      } else {
+        const errorData = await response.json();
+        console.error(errorData.message);
+      }
+
+    } catch (err) {
+
+    }
+
+  }
+
   return (
     <div className='signup'>
       <h1>Sign Up</h1>
-      <form className='signup-form' action='post'>
+      <form className='signup-form' onSubmit={handleSubmit}>
+
         <label htmlFor="name">Full Name</label> <br />
-        <input type="text" name="name" id="name" /> <br />
+        <input type="text" name="name" id="name" value={formData.name} onChange={handleChange} required /> <br />
+
         <label htmlFor="email">Email</label> <br />
-        <input type="email" name="email" id="email" /> <br />
+        <input type="email" name="email" id="email" value={formData.email} onChange={handleChange} required /> <br />
+
         <label htmlFor="password">Password</label> <br />
-        <input type="password" name="password" id="password" /> <br />
-        <label htmlFor="confirm-password">Confirm Password</label> <br />
-        <input type="password" name="confirm-password" id="confirm-password" /> <br />
+        <input type="password" name="password" id="password" value={formData.password} onChange={handleChange} required /> <br />
+
+        <label htmlFor="confirmPassword">Confirm Password</label> <br />
+        <input type="password" name="confirmPassword" id="confirmPassword" value={formData.confirmPassword} onChange={handleChange} /> <br />
+
         <button type="submit">Sign Up</button>
+
         <p>Already have an account? <Link to="/login">Sign in</Link></p>
       </form>
     </div>
