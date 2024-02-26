@@ -2,7 +2,7 @@
 
 body {
     background-color: #fff;
-    overflow: hidden;
+    /* overflow: hidden; */
 }
 
 .login {
