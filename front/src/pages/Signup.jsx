@@ -7,7 +7,6 @@ const Signup = () => {
     name: '',
     email: '',
     password: '',
-    confirmPassword: '',
   });
 
   const handleChange = (event) => {
@@ -21,11 +20,14 @@ const Signup = () => {
     event.preventDefault();
 
     try {
-      const response = await fetch('/signup', {
+      const response = await fetch('http://localhost:4000/signup', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        // headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData),
+        credentials: 'include',
       });
+
+      console.log(response);
 
       if (response.ok) {
         console.log('User Created Successfully');

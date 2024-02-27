@@ -3,6 +3,7 @@ const express = require('express');
 const mysql = require('mysql2/promise');
 const bcrypt = require('bcryptjs');
 require('dotenv').config();
+// const User = require('./model/User');
 
 // Database configuration
 const config = {
@@ -99,17 +100,65 @@ const port = process.env.PORT || 4000;
 app.use(express.json());
 
 // Route for user sign up
+// app.post('/signup', async (req, res) => {
+//   try {
+//     const { name, email, password } = req.body;
+//     const hashedPassword = await bcrypt.hash(password, 10);
+
+//     // Code to insert user data into the database (not included here for brevity)
+//     const [rows] = await pool.execute(
+//         'INSERT INTO users (name, email, password) VALUES (?, ?, ?)',
+//         [name, email, hashedPassword]
+//     );
+
+//     res.status(201).json({ message: 'User created successfully' });
+//     if (rows.affectedRows > 0){
+//         return rows.insertId
+//     } else {
+//         throw new Error('Failed to Create User');
+//     }
+
+//   } catch (err) {
+//     console.error(err);
+//     res.status(500).json({ message: 'Registration failed' });
+//   }
+// });
+
 app.post('/signup', async (req, res) => {
-  try {
-    const { name, email, password } = req.body;
-    const hashedPassword = await bcrypt.hash(password, 10);
-    // Code to insert user data into the database (not included here for brevity)
-    res.status(201).json({ message: 'User created successfully' });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: 'Registration failed' });
-  }
-});
+    try {
+      const { name, email, password, confirmPassword } = req.body;
+
+      // Check if password and confirmPassword are defined and are the same
+      if (!password || !confirmPassword || password !== confirmPassword) {
+        return res.status(400).json({ message: 'Passwords do not match' });
+      }
+
+      // Check if password is a string
+      if (typeof password !== 'string') {
+        return res.status(400).json({ message: 'Invalid password format' });
+      }
+
+      // Hash the password
+      const hashedPassword = await bcrypt.hash(password, 10);
+
+      // Insert user data into the database (not included here for brevity)
+      const [rows] = await pool.execute(
+            'INSERT INTO users (name, email, password) VALUES (?, ?, ?)',
+            [name, email, hashedPassword]
+        );
+
+        res.status(201).json({ message: 'User created successfully' });
+        if (rows.affectedRows > 0){
+            return rows.insertId
+        } else {
+            throw new Error('Failed to Create User');
+        }
+
+    } catch (err) {
+      console.error('Error creating user:', err);
+      res.status(500).json({ message: 'Registration failed' });
+    }
+  });
 
 // Start the server
 app.listen(port, () => {
