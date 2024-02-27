@@ -28,6 +28,7 @@ import Layout from "./pages/Layout";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
+import Dashboard from "./pages/Dashboard";
 
 
 
@@ -39,6 +40,7 @@ function App() {
           <Route index element={<Home/>} />
           <Route path="/login" Component={Login} />
           <Route path="/signup" Component={Signup} />
+          <Route path="/dashboard" Component={Dashboard} />
           {/* <Route index element={<Features/>} />
           <Route index element={<Solutions/>} />
           <Route index element={<Contact/>} />
