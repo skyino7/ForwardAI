@@ -27,7 +27,7 @@ const Signup = () => {
         credentials: 'include',
       });
 
-      console.log(response);
+      // console.log(response);
 
       if (response.ok) {
         console.log('User Created Successfully');
@@ -56,8 +56,8 @@ const Signup = () => {
         <label htmlFor="password">Password</label> <br />
         <input type="password" name="password" id="password" value={formData.password} onChange={handleChange} required /> <br />
 
-        <label htmlFor="confirmPassword">Confirm Password</label> <br />
-        <input type="password" name="confirmPassword" id="confirmPassword" value={formData.confirmPassword} onChange={handleChange} /> <br />
+        {/* <label htmlFor="confirmPassword">Confirm Password</label> <br />
+        <input type="password" name="confirmPassword" id="confirmPassword" value={formData.confirmPassword} onChange={handleChange} /> <br /> */}
 
         <button type="submit">Sign Up</button>
 

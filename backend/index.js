@@ -126,17 +126,27 @@ app.use(express.json());
 
 app.post('/signup', async (req, res) => {
     try {
-      const { name, email, password, confirmPassword } = req.body;
+      const { name, email, password } = req.body;
 
       // Check if password and confirmPassword are defined and are the same
-      if (!password || !confirmPassword || password !== confirmPassword) {
-        return res.status(400).json({ message: 'Passwords do not match' });
-      }
+    //   if (!password || !confirmPassword || password !== confirmPassword) {
+    //     return res.status(400).json({ message: 'Passwords do not match' });
+    //   }
+
+    console.log(req.body);
+
+    if (!name || !email || !password) {
+        return res.status(400).json({ message: 'Missing required fields' });
+    }
+
+    console.log(name);
+    console.log(email);
+    console.log(password);
 
       // Check if password is a string
-      if (typeof password !== 'string') {
-        return res.status(400).json({ message: 'Invalid password format' });
-      }
+    //   if (typeof password !== 'string') {
+    //     return res.status(400).json({ message: 'Invalid password format' });
+    //   }
 
       // Hash the password
       const hashedPassword = await bcrypt.hash(password, 10);
@@ -146,6 +156,8 @@ app.post('/signup', async (req, res) => {
             'INSERT INTO users (name, email, password) VALUES (?, ?, ?)',
             [name, email, hashedPassword]
         );
+
+        console.log(rows);
 
         res.status(201).json({ message: 'User created successfully' });
         if (rows.affectedRows > 0){
