@@ -22,24 +22,24 @@ const Signup = () => {
     try {
       const response = await fetch('http://localhost:4000/signup', {
         method: 'POST',
-        // headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json'
+        },
         body: JSON.stringify(formData),
         credentials: 'include',
       });
 
-      // console.log(response);
-
       if (response.ok) {
         console.log('User Created Successfully');
+      } else if (response.status === 204) {
+        console.log('User Created Successfully'); // or any other success message
       } else {
         const errorData = await response.json();
         console.error(errorData.message);
       }
-
     } catch (err) {
-
+      console.error('Error:', err);
     }
-
   }
 
   return (
@@ -58,6 +58,8 @@ const Signup = () => {
 
         {/* <label htmlFor="confirmPassword">Confirm Password</label> <br />
         <input type="password" name="confirmPassword" id="confirmPassword" value={formData.confirmPassword} onChange={handleChange} /> <br /> */}
+
+        console.log(name)
 
         <button type="submit">Sign Up</button>
 

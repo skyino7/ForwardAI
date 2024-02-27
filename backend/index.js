@@ -3,7 +3,11 @@ const express = require('express');
 const mysql = require('mysql2/promise');
 const bcrypt = require('bcryptjs');
 require('dotenv').config();
+const app = express();
+const cors = require('cors');
 // const User = require('./model/User');
+
+app.use(cors({credentials: true, origin: 'http://localhost:3000'}))
 
 // Database configuration
 const config = {
@@ -12,6 +16,9 @@ const config = {
   password: process.env.DB_PASSWORD,
   database: 'forwardai',
 };
+
+// Create a connection pool
+const pool = mysql.createPool(config);
 
 // Function to create a MySQL connection
 async function createConnection(config) {
@@ -75,6 +82,7 @@ async function createUserTable() {
       )
     `;
     await conn.query(sqlQuery);
+    // conn.release();
     console.log('Users Table Created Successfully');
   } catch (err) {
     console.error("Error creating users table:", err);
@@ -93,84 +101,84 @@ async function createUserTable() {
 })();
 
 // Create Express app
-const app = express();
 const port = process.env.PORT || 4000;
 
 // Middleware to parse JSON bodies
 app.use(express.json());
 
-// Route for user sign up
-// app.post('/signup', async (req, res) => {
-//   try {
-//     const { name, email, password } = req.body;
-//     const hashedPassword = await bcrypt.hash(password, 10);
-
-//     // Code to insert user data into the database (not included here for brevity)
-//     const [rows] = await pool.execute(
-//         'INSERT INTO users (name, email, password) VALUES (?, ?, ?)',
-//         [name, email, hashedPassword]
-//     );
-
-//     res.status(201).json({ message: 'User created successfully' });
-//     if (rows.affectedRows > 0){
-//         return rows.insertId
-//     } else {
-//         throw new Error('Failed to Create User');
-//     }
-
-//   } catch (err) {
-//     console.error(err);
-//     res.status(500).json({ message: 'Registration failed' });
-//   }
-// });
 
 app.post('/signup', async (req, res) => {
-    try {
-      const { name, email, password } = req.body;
+  try {
+    const { name, email, password } = req.body;
 
-      // Check if password and confirmPassword are defined and are the same
-    //   if (!password || !confirmPassword || password !== confirmPassword) {
-    //     return res.status(400).json({ message: 'Passwords do not match' });
-    //   }
+    // Check if name or email already exist in the database
+    const [existingUsers] = await pool.execute(
+      'SELECT * FROM users WHERE name = ? OR email = ?',
+      [name, email]
+    );
 
-    console.log(req.body);
-
-    if (!name || !email || !password) {
-        return res.status(400).json({ message: 'Missing required fields' });
+    if (existingUsers.length > 0) {
+      // If a user with the same name or email already exists, return an error response
+      return res.status(400).json({ message: 'User with the same name or email already exists' });
     }
 
-    console.log(name);
-    console.log(email);
-    console.log(password);
+    // Hash the password
+    const hashedPassword = await bcrypt.hash(password, 10);
 
-      // Check if password is a string
-    //   if (typeof password !== 'string') {
-    //     return res.status(400).json({ message: 'Invalid password format' });
-    //   }
+    // Insert user data into the database
+    const [result] = await pool.execute(
+      'INSERT INTO users (name, email, password) VALUES (?, ?, ?)',
+      [name, email, hashedPassword]
+    );
 
-      // Hash the password
-      const hashedPassword = await bcrypt.hash(password, 10);
-
-      // Insert user data into the database (not included here for brevity)
-      const [rows] = await pool.execute(
-            'INSERT INTO users (name, email, password) VALUES (?, ?, ?)',
-            [name, email, hashedPassword]
-        );
-
-        console.log(rows);
-
-        res.status(201).json({ message: 'User created successfully' });
-        if (rows.affectedRows > 0){
-            return rows.insertId
-        } else {
-            throw new Error('Failed to Create User');
-        }
-
-    } catch (err) {
-      console.error('Error creating user:', err);
-      res.status(500).json({ message: 'Registration failed' });
+    // Check if the user was successfully created
+    if (result.affectedRows > 0) {
+      return res.status(201).json({ message: 'User created successfully' });
+    } else {
+      throw new Error('Failed to create user');
     }
-  });
+  } catch (err) {
+    console.error('Error creating user:', err);
+    res.status(500).json({ message: 'Registration failed' });
+  }
+});
+
+// Route for user login
+app.post('/login', async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    // Fetch user from the database based on email
+    const [users] = await pool.execute(
+      'SELECT * FROM users WHERE email = ?',
+      [email]
+    );
+
+    if (users.length === 0) {
+      // If no user found with the provided email, return an error
+      return res.status(401).json({ message: 'Invalid email or password' });
+    }
+
+    const user = users[0];
+
+    // Verify password
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    if (!isPasswordValid) {
+      // If password does not match, return an error
+      return res.status(401).json({ message: 'Invalid email or password' });
+    }
+
+    // At this point, user is successfully authenticated
+    // You can generate a token and include it in the response if needed
+    // For simplicity, we'll just return a success message
+    res.status(200).json({ message: 'Login successful' });
+  } catch (err) {
+    console.error('Error:', err);
+    res.status(500).json({ message: 'Internal Server Error' });
+  }
+});
+
+
 
 // Start the server
 app.listen(port, () => {
