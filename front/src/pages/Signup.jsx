@@ -44,7 +44,8 @@ const Signup = () => {
 
   return (
     <div className='signup'>
-      <h1>Sign Up</h1>
+      <h1>Forward AI+</h1>
+      <h3>Register</h3>
       <form className='signup-form' onSubmit={handleSubmit}>
 
         <label htmlFor="name">Full Name</label> <br />
@@ -55,11 +56,6 @@ const Signup = () => {
 
         <label htmlFor="password">Password</label> <br />
         <input type="password" name="password" id="password" value={formData.password} onChange={handleChange} required /> <br />
-
-        {/* <label htmlFor="confirmPassword">Confirm Password</label> <br />
-        <input type="password" name="confirmPassword" id="confirmPassword" value={formData.confirmPassword} onChange={handleChange} /> <br /> */}
-
-        console.log(name)
 
         <button type="submit">Sign Up</button>
 

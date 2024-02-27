@@ -1,11 +1,12 @@
 import React, { useState } from 'react'
 import BI from '../assets/BI.jpg'
 import './main.css';
-import { Navigate } from 'react-router-dom';
+import { Navigate, Link } from 'react-router-dom';
 
 const Login = () => {
 
   const [redirect, setRedirect] = useState(false)
+  const [message, setMessage] = useState('');
 
   const [formData, setFormData] = useState({
     email: '',
@@ -33,13 +34,14 @@ const Login = () => {
       });
 
       if (response.ok){
-        console.log('Login Successful');
+        setMessage('Login Successful');
         setRedirect(true);
       } else {
-        console.log('Login Failed')
+        setMessage('Login Failed')
       }
     } catch (err) {
       console.error('Error:', err)
+      setMessage('An error occurred during login. Please try again.');
     }
   };
 
@@ -58,7 +60,9 @@ const Login = () => {
           <label htmlFor="password">Password</label><br />
           <input type="password" name="password" value={formData.password} onChange={handleChange}/><br />
           <button type="submit">Login</button>
+          <p>Don't have an account? <Link to="/signup">Sign Up</Link></p>
         </form>
+        {message && <div className="message">{message}</div>}
       </div>
       <div className='login-img'>
         <img src={BI} alt="" />
