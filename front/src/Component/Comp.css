@@ -268,3 +268,8 @@
       margin: 0;
       text-transform: uppercase;
     }
+
+    .started {
+      width: auto;
+      height: 400px;
+    }
