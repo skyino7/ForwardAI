@@ -19,6 +19,14 @@ const config = {
   database: 'forwardai',
 };
 
+const transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASSWORD,
+  },
+});
+
 // Create a connection pool
 const pool = mysql.createPool(config);
 
@@ -80,6 +88,7 @@ async function createUserTable() {
           name VARCHAR(255) NOT NULL,
           email VARCHAR(255) NOT NULL,
           password VARCHAR(255) NOT NULL,
+          verification_token VARCHAR(255) NOT NULL,
           created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )
     `;
@@ -124,17 +133,20 @@ app.post('/signup', async (req, res) => {
       return res.status(400).json({ message: 'User with the same name or email already exists' });
     }
 
+    const verificationToken = generateVerifactionToken();
+
     // Hash the password
     const hashedPassword = await bcrypt.hash(password, 10);
 
     // Insert user data into the database
     const [result] = await pool.execute(
-      'INSERT INTO users (name, email, password) VALUES (?, ?, ?)',
-      [name, email, hashedPassword]
+      'INSERT INTO users (name, email, password, verification_token) VALUES (?, ?, ?, ?)',
+      [name, email, hashedPassword, verificationToken]
     );
 
     // Check if the user was successfully created
     if (result.affectedRows > 0) {
+      await sendVerificationEmail(email, verificationToken);
       return res.status(201).json({ message: 'User created successfully' });
     } else {
       throw new Error('Failed to create user');
@@ -144,6 +156,26 @@ app.post('/signup', async (req, res) => {
     res.status(500).json({ message: 'Registration failed' });
   }
 });
+
+function generateVerifactionToken() {
+  return crypto.randomBytes(20).toString('hex');
+}
+
+// Function to send verification email
+async function sendVerificationEmail(email, token) {
+  const mailOptions = {
+    from: process.env.EMAIL_USER,
+    to: email,
+    subject: 'Account Verification',
+    html: `
+      <p>Hello,</p>
+      <p>Please click on the following link to verify your account:</p>
+      <a href="${process.env.BASE_URL}/verify/${token}">Verify Account</a>
+    `,
+  };
+
+  await transporter.sendMail(mailOptions);
+}
 
 // Route for user login
 app.post('/login', async (req, res) => {
