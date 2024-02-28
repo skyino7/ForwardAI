@@ -5,6 +5,8 @@ const bcrypt = require('bcryptjs');
 require('dotenv').config();
 const app = express();
 const cors = require('cors');
+const crypto = require('crypto');
+const nodemailer = require('nodemailer');
 // const User = require('./model/User');
 
 app.use(cors({credentials: true, origin: 'http://localhost:3000'}))
