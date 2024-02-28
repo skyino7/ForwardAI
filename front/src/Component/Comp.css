@@ -270,6 +270,45 @@
     }
 
     .started {
-      width: auto;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .text-start {
+      flex: 1;
+      padding: 100px;
+    }
+
+    .text-start h2 {
+      font-size: 24px;
+      margin-bottom: 10px;
+    }
+
+    .text-start p {
+      font-size: 16px;
+      line-height: 1.5;
+      margin-bottom: 20px;
+    }
+
+    .text-start a {
+      color: #007bff;
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    .text-start a:hover {
+      text-decoration: underline;
+    }
+
+    .start-img {
+      /* flex: 1; */
+      padding: 0px 100px;
+    }
+
+    .start-img img {
+      width: 500px;
       height: 400px;
     }
+
+
