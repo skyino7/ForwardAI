@@ -6,6 +6,7 @@ require('dotenv').config();
 const app = express();
 const cors = require('cors');
 const crypto = require('crypto');
+const session = require('express-session');
 const nodemailer = require('nodemailer');
 
 app.use(cors({ credentials: true, origin: 'http://localhost:3000' }));
@@ -116,6 +117,23 @@ const port = process.env.PORT || 4000;
 // Middleware to parse JSON bodies
 app.use(express.json());
 
+// Generate a random string of specified length
+function generateRandomString(length) {
+  return crypto.randomBytes(Math.ceil(length / 2))
+    .toString('hex') // Convert to hexadecimal format
+    .slice(0, length); // Return required number of characters
+}
+
+// Generate a secret key of 32 characters (256 bits)
+const secretKey = generateRandomString(32);
+
+// Use express-session middleware
+app.use(session({
+  secret: secretKey,
+  resave: false,
+  saveUninitialized: false
+}));
+
 
 app.post('/signup', async (req, res) => {
   try {
@@ -176,6 +194,18 @@ async function sendVerificationEmail(email, token, name) {
   await transporter.sendMail(mailOptions);
 }
 
+// Middleware to check if user is authenticated
+function isAuthenticated(req, res, next) {
+  // Check if user session exists
+  if (req.session && req.session.userId) {
+    // User is authenticated, proceed to next middleware or route handler
+    next();
+  } else {
+    // User is not authenticated, redirect to login page
+    res.redirect('/login');
+  }
+}
+
 // Route for user login
 app.post('/login', async (req, res) => {
   try {
@@ -202,6 +232,12 @@ app.post('/login', async (req, res) => {
     }
 
     // At this point, user is successfully authenticated
+
+    // Store authentication status in the session
+    req.session.authenticated = true;
+    req.session.userId = user.userId; // Assuming userId is the primary key of the user
+
+    // At this point, user is successfully authenticated
     // You can generate a token and include it in the response if needed
     // For simplicity, we'll just return a success message
     res.status(200).json({ message: 'Login successful' });
@@ -211,7 +247,11 @@ app.post('/login', async (req, res) => {
   }
 });
 
-
+// Route for dashboard (authenticated route)
+app.get('/dashboard', isAuthenticated, (req, res) => {
+  // Render dashboard page
+  res.render('dashboard');
+});
 
 // Start the server
 app.listen(port, () => {
