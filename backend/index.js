@@ -18,6 +18,8 @@ const config = {
   database: process.env.DB_NAME,
 };
 
+const pool = mysql.createPool(config);
+
 const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
@@ -102,7 +104,7 @@ async function createUserTable() {
     const conn = await createConnection(config);
 
     // Create the users table
-    await createUserTable();
+    await createUserTable(conn);
   } catch (err) {
     console.error("Overall error:", err);
   }

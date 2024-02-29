@@ -31,6 +31,7 @@ const Signup = () => {
 
       if (response.ok) {
         console.log('User Created Successfully');
+        window.location.href = '/admin/dashboard';
       } else if (response.status === 204) {
         console.log('User Created Successfully'); // or any other success message
       } else {
