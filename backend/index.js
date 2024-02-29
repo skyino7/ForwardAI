@@ -7,16 +7,15 @@ const app = express();
 const cors = require('cors');
 const crypto = require('crypto');
 const nodemailer = require('nodemailer');
-// const User = require('./model/User');
 
-app.use(cors({credentials: true, origin: 'http://localhost:3000'}))
+app.use(cors({ credentials: true, origin: 'http://localhost:3000' }));
 
 // Database configuration
 const config = {
   host: process.env.DB_HOST,
   user: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
-  database: 'forwardai',
+  database: process.env.DB_NAME,
 };
 
 const transporter = nodemailer.createTransport({
@@ -27,8 +26,34 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-// Create a connection pool
-// const pool = mysql.createPool(config);
+// Function to create a database
+async function createDatabase(config) {
+  // Clone the config object to avoid mutating the original
+  const connectionConfig = { ...config, database: undefined };
+  const conn = await mysql.createConnection(connectionConfig);
+
+  try {
+    // Check if database exists using optional chaining and error handling
+    const databaseExists = await conn.query(`SHOW DATABASES LIKE '${config.database}'`)
+      .then((result) => result[0]?.length > 0)
+      .catch((error) => {
+        console.error(`Error checking database existence: ${error.message}`);
+        throw error;
+      });
+
+    if (databaseExists) {
+      console.log(`Database '${config.database}' already exists.`);
+    } else {
+      await conn.query(`CREATE DATABASE IF NOT EXISTS ${mysql.escapeId(config.database)};`);
+      console.log(`Database '${config.database}' created successfully.`);
+    }
+  } catch (err) {
+    console.error(`Error creating database: ${err.message}`);
+    throw err;
+  } finally {
+    await conn.end();
+  }
+}
 
 // Function to create a MySQL connection
 async function createConnection(config) {
@@ -37,68 +62,10 @@ async function createConnection(config) {
     console.log("Successfully connected to MySQL server!");
     return conn;
   } catch (err) {
-    if (err.code === 'ER_NOT_FOUND_FOR_TABLE') { // Check for specific error code
-      console.error("Database doesn't exist.");
-      // await createDatabaseIfNeeded(config);
-      // // Retry connection after creating the database
-      // return await createConnection(config);
-    } else {
-      console.error("Error connecting to MySQL server:", err);
-      throw err;
-    }
-  }
-}
-
-// Function to check if a database exists
-// async function checkDatabase(config) {
-//   const conn = await createConnection(config);
-//   try {
-//     console.log("Checking for database...");
-//     const [rows] = await conn.query(`SHOW DATABASES LIKE '${config.database}'`);
-//     const databaseExists = rows.length > 0;
-//     if (!databaseExists) {
-//       console.log(`Database '${config.database}' does not exist.`);
-//       console.log("Creating the database...");
-//       await createDatabaseIfNeeded(config);
-//     } else {
-//       console.log(`Database '${config.database}' already exists.`);
-//     }
-//     return databaseExists;
-//   } catch (err) {
-//     console.error("Error checking database:", err);
-//     throw err;
-//   } finally {
-//     await conn.end();
-//     console.log("Connection closed.");
-//   }
-// }
-
-// Function to create a database if it doesn't exist
-async function createDatabaseIfNeeded(config) {
-  const conn = await createConnection(config);
-
-  try {
-    console.log("Checking if database exists...");
-
-    // Check if database exists using optional chaining
-    const databaseExists = await conn.query(`SHOW DATABASES LIKE '${config.database}'`)[0]?.length > 0;
-
-    if (!databaseExists) {
-      console.log("Database does not exist. Creating database...");
-      await conn.query(`CREATE DATABASE IF NOT EXISTS ${config.database}`); // Use template literal
-      console.log(`Database '${config.database}' created successfully.`);
-    } else {
-      console.log(`Database '${config.database}' already exists.`);
-    }
-  } catch (err) {
-    console.error("Error creating or checking database:", err);
+    console.error("Error connecting to MySQL server:", err);
     throw err;
-  } finally {
-    await conn.end();
-    console.log("Connection closed.");
   }
 }
-
 
 // Function to create the users table
 async function createUserTable() {
@@ -129,7 +96,12 @@ async function createUserTable() {
 // Initialize database and create users table
 (async () => {
   try {
-    await createDatabaseIfNeeded(config);
+    // Create database if it doesn't exist
+    await createDatabase(config);
+
+    const conn = await createConnection(config);
+
+    // Create the users table
     await createUserTable();
   } catch (err) {
     console.error("Overall error:", err);
