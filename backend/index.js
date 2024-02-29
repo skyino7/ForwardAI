@@ -28,7 +28,7 @@ const transporter = nodemailer.createTransport({
 });
 
 // Create a connection pool
-const pool = mysql.createPool(config);
+// const pool = mysql.createPool(config);
 
 // Function to create a MySQL connection
 async function createConnection(config) {
@@ -37,20 +37,61 @@ async function createConnection(config) {
     console.log("Successfully connected to MySQL server!");
     return conn;
   } catch (err) {
-    console.error("Error connecting to MySQL server:", err);
-    throw err;
+    if (err.code === 'ER_NOT_FOUND_FOR_TABLE') { // Check for specific error code
+      console.error("Database doesn't exist.");
+      // await createDatabaseIfNeeded(config);
+      // // Retry connection after creating the database
+      // return await createConnection(config);
+    } else {
+      console.error("Error connecting to MySQL server:", err);
+      throw err;
+    }
   }
 }
 
 // Function to check if a database exists
-async function checkDatabase(config) {
+// async function checkDatabase(config) {
+//   const conn = await createConnection(config);
+//   try {
+//     console.log("Checking for database...");
+//     const [rows] = await conn.query(`SHOW DATABASES LIKE '${config.database}'`);
+//     const databaseExists = rows.length > 0;
+//     if (!databaseExists) {
+//       console.log(`Database '${config.database}' does not exist.`);
+//       console.log("Creating the database...");
+//       await createDatabaseIfNeeded(config);
+//     } else {
+//       console.log(`Database '${config.database}' already exists.`);
+//     }
+//     return databaseExists;
+//   } catch (err) {
+//     console.error("Error checking database:", err);
+//     throw err;
+//   } finally {
+//     await conn.end();
+//     console.log("Connection closed.");
+//   }
+// }
+
+// Function to create a database if it doesn't exist
+async function createDatabaseIfNeeded(config) {
   const conn = await createConnection(config);
+
   try {
-    console.log("Checking for database...");
-    const [rows] = await conn.query(`SHOW DATABASES LIKE '${config.database}'`);
-    return rows.length > 0;
+    console.log("Checking if database exists...");
+
+    // Check if database exists using optional chaining
+    const databaseExists = await conn.query(`SHOW DATABASES LIKE '${config.database}'`)[0]?.length > 0;
+
+    if (!databaseExists) {
+      console.log("Database does not exist. Creating database...");
+      await conn.query(`CREATE DATABASE IF NOT EXISTS ${config.database}`); // Use template literal
+      console.log(`Database '${config.database}' created successfully.`);
+    } else {
+      console.log(`Database '${config.database}' already exists.`);
+    }
   } catch (err) {
-    console.error("Error checking database:", err);
+    console.error("Error creating or checking database:", err);
     throw err;
   } finally {
     await conn.end();
@@ -58,25 +99,6 @@ async function checkDatabase(config) {
   }
 }
 
-// Function to create a database if it doesn't exist
-async function createDatabaseIfNeeded(config) {
-  if (!(await checkDatabase(config))) {
-    const conn = await createConnection(config);
-    try {
-      console.log("Creating database...");
-      await conn.query(`CREATE DATABASE IF NOT EXISTS ${config.database}`);
-      console.log(`Database '${config.database}' created successfully.`);
-    } catch (err) {
-      console.error("Error creating database:", err);
-      throw err;
-    } finally {
-      await conn.end();
-      console.log("Connection closed.");
-    }
-  } else {
-    console.log(`Database '${config.database}' already exists.`);
-  }
-}
 
 // Function to create the users table
 async function createUserTable() {
@@ -92,9 +114,12 @@ async function createUserTable() {
           created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )
     `;
-    await conn.query(sqlQuery);
-    // conn.release();
-    console.log('Users Table Created Successfully');
+    const [result] = await conn.query(sqlQuery);
+    if (result.warningStatus === 0) {
+      console.log('Users Table Created Successfully');
+    } else {
+      console.log('Users Table Already Exists');
+    }
   } catch (err) {
     console.error("Error creating users table:", err);
     throw err;
@@ -162,13 +187,13 @@ function generateVerifactionToken() {
 }
 
 // Function to send verification email
-async function sendVerificationEmail(email, token) {
+async function sendVerificationEmail(email, token, name) {
   const mailOptions = {
     from: process.env.EMAIL_USER,
     to: email,
     subject: 'Account Verification',
     html: `
-      <p>Hello,</p>
+      <p>Hello, ${name}}</p>
       <p>Please click on the following link to verify your account:</p>
       <a href="${process.env.BASE_URL}/verify/${token}">Verify Account</a>
     `,
