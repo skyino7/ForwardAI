@@ -20,7 +20,7 @@ const config = {
   database: process.env.DB_NAME,
 };
 
-console.log(OAuth2Client);
+// console.log(OAuth2Client);
 
 const pool = mysql.createPool(config);
 
