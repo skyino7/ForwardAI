@@ -30,10 +30,13 @@ const Signup = () => {
       });
 
       if (response.ok) {
-        console.log('User Created Successfully');
-        window.location.href = '/admin/dashboard';
+        const responseData = await response.json();
+      console.log(responseData.message);
+
+      // Redirect to a verification pending page
+      window.location.href = '/VerificationPending';
       } else if (response.status === 204) {
-        console.log('User Created Successfully'); // or any other success message
+        console.log('Waiting for Verification'); // or any other success message
       } else {
         const errorData = await response.json();
         console.error(errorData.message);

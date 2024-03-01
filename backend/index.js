@@ -8,6 +8,7 @@ const cors = require('cors');
 const crypto = require('crypto');
 const session = require('express-session');
 const nodemailer = require('nodemailer');
+const { OAuth2Client } = require('google-auth-library');
 
 app.use(cors({ credentials: true, origin: 'http://localhost:3000' }));
 
@@ -19,13 +20,28 @@ const config = {
   database: process.env.DB_NAME,
 };
 
+console.log(OAuth2Client);
+
 const pool = mysql.createPool(config);
+
+const CLIENT_ID = process.env.CLIENT_ID;
+const CLIENT_SECRET = process.env.CLIENT_SECRET;
+const REDIRECT_URI = process.env.REDIRECT_URI;
+const REFRESH_TOKEN = process.env.REFRESH_TOKEN;
+
+const myOAuth2Client = new OAuth2Client(CLIENT_ID, CLIENT_SECRET, REDIRECT_URI);
+
+myOAuth2Client.setCredentials({ refresh_token: REFRESH_TOKEN });
 
 const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
+    type: 'OAuth2',
     user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASSWORD,
+    clientId: CLIENT_ID,
+    clientSecret: CLIENT_SECRET,
+    refreshToken: REFRESH_TOKEN,
+    accessToken: myOAuth2Client.getAccessToken(),
   },
 });
 
@@ -81,6 +97,7 @@ async function createUserTable() {
           email VARCHAR(255) NOT NULL,
           password VARCHAR(255) NOT NULL,
           verification_token VARCHAR(255) NOT NULL,
+          verified BOOLEAN DEFAULT FALSE,
           created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )
     `;
@@ -135,6 +152,7 @@ app.use(session({
 }));
 
 
+// Route for user signup
 app.post('/signup', async (req, res) => {
   try {
     const { name, email, password } = req.body;
@@ -150,20 +168,20 @@ app.post('/signup', async (req, res) => {
       return res.status(400).json({ message: 'User with the same name or email already exists' });
     }
 
-    const verificationToken = generateVerifactionToken();
+    const verificationToken = generateVerificationToken();
 
     // Hash the password
     const hashedPassword = await bcrypt.hash(password, 10);
 
     // Insert user data into the database
     const [result] = await pool.execute(
-      'INSERT INTO users (name, email, password, verification_token) VALUES (?, ?, ?, ?)',
-      [name, email, hashedPassword, verificationToken]
+      'INSERT INTO users (name, email, password, verification_token, verified) VALUES (?, ?, ?, ?, ?)',
+      [name, email, hashedPassword, verificationToken, false] // Set verified to false initially
     );
 
     // Check if the user was successfully created
     if (result.affectedRows > 0) {
-      await sendVerificationEmail(email, verificationToken);
+      await sendVerificationEmail(email, verificationToken, name);
       return res.status(201).json({ message: 'User created successfully' });
     } else {
       throw new Error('Failed to create user');
@@ -174,24 +192,30 @@ app.post('/signup', async (req, res) => {
   }
 });
 
-function generateVerifactionToken() {
+// Function to generate verification token
+function generateVerificationToken() {
   return crypto.randomBytes(20).toString('hex');
 }
 
 // Function to send verification email
 async function sendVerificationEmail(email, token, name) {
-  const mailOptions = {
-    from: process.env.EMAIL_USER,
-    to: email,
-    subject: 'Account Verification',
-    html: `
-      <p>Hello, ${name}}</p>
-      <p>Please click on the following link to verify your account:</p>
-      <a href="${process.env.BASE_URL}/verify/${token}">Verify Account</a>
-    `,
-  };
+  try {
+    const mailOptions = {
+      from: process.env.EMAIL_USER,
+      to: email,
+      subject: 'Account Verification',
+      html: `
+        <p>Hello, ${name}</p>
+        <p>Please click on the following link to verify your account:</p>
+        <a href="${process.env.BASE_URL}/verify/${token}">Verify Account</a>
+      `,
+    };
 
-  await transporter.sendMail(mailOptions);
+    await transporter.sendMail(mailOptions);
+    console.log('Verification email sent successfully');
+  } catch (error) {
+    console.error('Failed to send verification email:', error);
+  }
 }
 
 // Middleware to check if user is authenticated
@@ -251,6 +275,39 @@ app.post('/login', async (req, res) => {
 app.get('/dashboard', isAuthenticated, (req, res) => {
   // Render dashboard page
   res.render('dashboard');
+});
+
+// Route for verifying account using token
+app.get('/verify/:token', async (req, res) => {
+  try {
+    // Extract token from URL parameter
+    const token = req.params.token;
+
+    // Query the database for the user with the provided token
+    const [users] = await pool.execute(
+      'SELECT * FROM users WHERE verification_token = ?',
+      [token]
+    );
+
+    // If no user found with the provided token, return an error
+    if (users.length === 0) {
+      return res.status(404).json({ message: 'Invalid verification token' });
+    }
+
+    const user = users[0];
+
+    // Update the user record to mark it as verified
+    await pool.execute(
+      'UPDATE users SET verified = ? WHERE userId = ?',
+      [true, user.userId]
+    );
+    console.log("User Verified");
+    // Redirect user to a confirmation page
+    res.redirect('/Confirmation');
+  } catch (err) {
+    console.error('Error verifying email:', err);
+    res.status(500).json({ message: 'Email verification failed' });
+  }
 });
 
 // Start the server

@@ -29,7 +29,8 @@ import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import Dashboard from "./admin/Dashboard";
-
+import Confirmation from "./pages/Confirmation";
+import VerificationPending from "./pages/VerificationPending ";
 
 
 function App() {
@@ -41,6 +42,8 @@ function App() {
           <Route path="/login" Component={Login} />
           <Route path="/signup" Component={Signup} />
           <Route path="/dashboard" Component={Dashboard} />
+          <Route path="/Confirmation" Component={Confirmation} />
+          <Route path="/VerificationPending" Component={VerificationPending} />
           {/* <Route index element={<Features/>} />
           <Route index element={<Solutions/>} />
           <Route index element={<Contact/>} />
