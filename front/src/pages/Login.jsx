@@ -7,7 +7,7 @@ import { useNavigate } from 'react-router-dom';
 const Login = () => {
 
   const navigate = useNavigate();
-  // const [redirect, setRedirect] = useState(false)
+  const [redirect, setRedirect] = useState(false)
   const [message, setMessage] = useState('');
 
   const [formData, setFormData] = useState({
@@ -36,7 +36,7 @@ const Login = () => {
       });
 
       if (response.ok){
-        // setRedirect(true);
+        setRedirect(true);
         setMessage('Login Successful');
         navigate('/Dashboard')
       } else {
@@ -48,10 +48,10 @@ const Login = () => {
     }
   };
 
-  // if (redirect){
-  //   return <Navigate to={'/dashboard'} />
-  //   // window.location.href = '/admin/dashboard';
-  // }
+  if (redirect){
+    return <Navigate to={'/dashboard'} />
+    // window.location.href = '/admin/dashboard';
+  }
 
   return (
     <div className='login'>

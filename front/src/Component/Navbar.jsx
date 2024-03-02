@@ -1,7 +1,7 @@
 import React from 'react';
 import './Comp.css';
 // import Login from "./pages/Login";
-import { Outlet, Link } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 const navbar = () => {
   return (

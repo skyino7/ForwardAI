@@ -8,10 +8,10 @@ import Confirmation from "./pages/Confirmation";
 import VerificationPending from "./pages/VerificationPending";
 import Dashboard from "./admin/Dashboard";
 import { Navigate } from "react-router-dom";
-// import isAuthenticated from "../../backend/index"
 import { useEffect, useState } from "react";
 
 function App() {
+
 
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
@@ -51,7 +51,7 @@ function App() {
 
           <Route path="/Confirmation" element={<Confirmation />} />
           <Route path="/VerificationPending" element={<VerificationPending />} />
-          <Route path="/verify/:token"></Route>
+          {/* <Route path="/verify/:token"></Route> */}
           {/* <Route index element={<Features/>} />
           <Route index element={<Solutions/>} />
           <Route index element={<Contact/>} />

@@ -9,6 +9,16 @@ const crypto = require('crypto');
 const session = require('express-session');
 const nodemailer = require('nodemailer');
 const { OAuth2Client } = require('google-auth-library');
+// const { createProxyMiddleware } = require('http-proxy-middleware');
+
+// Proxy configuration
+// const proxy = createProxyMiddleware({
+//   target: 'http://localhost:3000', // Adjust URL to your backend server
+//   changeOrigin: true,
+// });
+
+// Apply proxy to specific paths
+// app.use('/', proxy);
 
 app.use(cors({ credentials: true, origin: 'http://localhost:3000' }));
 
@@ -129,7 +139,7 @@ async function createUserTable() {
 })();
 
 // Create Express app
-const port = process.env.PORT || 4000;
+const port = process.env.PORT || 5000;
 
 // Middleware to parse JSON bodies
 app.use(express.json());
