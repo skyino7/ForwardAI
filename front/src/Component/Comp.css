@@ -311,4 +311,43 @@
       height: 400px;
     }
 
+    .footer {
+      background-color: #050F6C;
+      color: #fff;
+      display: flex; /* Use flexbox for column layout */
+      justify-content: space-between; /* Distribute columns evenly */
+      padding: 20px;
+    }
+
+    .footer p {
+      margin-bottom: 10px;
+    }
+
+    .footer .center,
+    .footer .back-to-top {
+      flex: 1; /* Make each column take up equal space */
+      text-align: center; /* Center content within each column */
+    }
+
+    .footer .back-to-top {
+      margin-top: 10px;
+    }
+
+    .back-to-top {
+      text-align: center; /* Center the content horizontally */
+      margin-top: 20px; /* Add some space above the link */
+    }
+
+    .back-to-top a {
+      color: #fff; /* White text color for better contrast */
+      text-decoration: none; /* Remove underline from the link */
+      font-weight: 400; /* Make the text bolder */
+      /* Optional: Add hover styles for the link */
+      transition: all 0.2s ease-in-out; /* Add a smooth hover effect */
+    }
+
+    .back-to-top a:hover {
+      color: #ccc; /* Change text color on hover */
+    }
+
 

@@ -9,6 +9,7 @@
   "author": "Seth Ketsi",
   "license": "ISC",
   "dependencies": {
-    "google-auth-library": "^9.6.3"
+    "google-auth-library": "^9.6.3",
+    "react-router-dom": "^6.22.2"
   }
 }

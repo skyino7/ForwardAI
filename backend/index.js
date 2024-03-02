@@ -221,12 +221,13 @@ async function sendVerificationEmail(email, token, name) {
 // Middleware to check if user is authenticated
 function isAuthenticated(req, res, next) {
   // Check if user session exists
-  if (req.session && req.session.userId) {
+  if (req.session.authenticated) {
     // User is authenticated, proceed to next middleware or route handler
     next();
   } else {
     // User is not authenticated, redirect to login page
-    res.redirect('/login');
+    res.status(401).send('Unauthorized');
+    // res.redirect('/login');
   }
 }
 
@@ -272,9 +273,10 @@ app.post('/login', async (req, res) => {
 });
 
 // Route for dashboard (authenticated route)
-app.get('/dashboard', isAuthenticated, (req, res) => {
+app.get('/Dashboard', isAuthenticated, (req, res) => {
   // Render dashboard page
-  res.render('dashboard');
+  res.json({ message: 'Dashboard accessed successfully' });
+  // res.render('/Dashboard');
 });
 
 // Route for verifying account using token
@@ -303,7 +305,8 @@ app.get('/verify/:token', async (req, res) => {
     );
     console.log("User Verified");
     // Redirect user to a confirmation page
-    res.redirect('/Confirmation');
+    res.render('Confirmation', { message: 'Your email has been verified successfully!' });
+    // res.redirect('/Confirmation');
   } catch (err) {
     console.error('Error verifying email:', err);
     res.status(500).json({ message: 'Email verification failed' });

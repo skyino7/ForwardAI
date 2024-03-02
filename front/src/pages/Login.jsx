@@ -2,15 +2,17 @@ import React, { useState } from 'react'
 import BI from '../assets/BI.jpg'
 import './main.css';
 import { Navigate, Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 const Login = () => {
 
-  const [redirect, setRedirect] = useState(false)
+  const navigate = useNavigate();
+  // const [redirect, setRedirect] = useState(false)
   const [message, setMessage] = useState('');
 
   const [formData, setFormData] = useState({
     email: '',
-    password: ''
+    password: '',
   });
 
   const handleChange = (event) => {
@@ -34,8 +36,9 @@ const Login = () => {
       });
 
       if (response.ok){
+        // setRedirect(true);
         setMessage('Login Successful');
-        setRedirect(true);
+        navigate('/Dashboard')
       } else {
         setMessage('Login Failed')
       }
@@ -45,10 +48,10 @@ const Login = () => {
     }
   };
 
-  if (redirect){
-    return <Navigate to={'/dashboard'} />
-    // window.location.href = '/admin/dashboard';
-  }
+  // if (redirect){
+  //   return <Navigate to={'/dashboard'} />
+  //   // window.location.href = '/admin/dashboard';
+  // }
 
   return (
     <div className='login'>
