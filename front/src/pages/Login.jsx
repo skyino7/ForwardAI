@@ -26,7 +26,7 @@ const Login = () => {
     event.preventDefault();
 
     try {
-      const response = await fetch('http://localhost:4000/login',{
+      const response = await fetch('/login',{
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -38,9 +38,9 @@ const Login = () => {
       if (response.ok){
         setRedirect(true);
         setMessage('Login Successful');
-        navigate('/Dashboard')
+        navigate('/Dashboard');
       } else {
-        setMessage('Login Failed')
+        setMessage('Login Failed');
       }
     } catch (err) {
       console.error('Error:', err)
