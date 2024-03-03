@@ -9,16 +9,6 @@ const crypto = require('crypto');
 const session = require('express-session');
 const nodemailer = require('nodemailer');
 const { OAuth2Client } = require('google-auth-library');
-// const { createProxyMiddleware } = require('http-proxy-middleware');
-
-// Proxy configuration
-// const proxy = createProxyMiddleware({
-//   target: 'http://localhost:3000', // Adjust URL to your backend server
-//   changeOrigin: true,
-// });
-
-// Apply proxy to specific paths
-// app.use('/', proxy);
 
 app.use(cors({ credentials: true, origin: 'http://localhost:3000' }));
 
@@ -29,8 +19,6 @@ const config = {
   password: process.env.DB_PASSWORD,
   database: process.env.DB_NAME,
 };
-
-// console.log(OAuth2Client);
 
 const pool = mysql.createPool(config);
 
@@ -272,9 +260,7 @@ app.post('/login', async (req, res) => {
     req.session.authenticated = true;
     req.session.userId = user.userId; // Assuming userId is the primary key of the user
 
-    // At this point, user is successfully authenticated
-    // You can generate a token and include it in the response if needed
-    // For simplicity, we'll just return a success message
+    // return a success message
     res.status(200).json({ message: 'Login successful' });
   } catch (err) {
     console.error('Error:', err);
