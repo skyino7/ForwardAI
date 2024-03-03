@@ -12,7 +12,6 @@ import { useEffect, useState } from "react";
 
 function App() {
 
-
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   useEffect(() => {
