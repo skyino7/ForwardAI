@@ -10,18 +10,16 @@ const Confirmation = () => {
     // Fetch verification data from the backend API
     const fetchData = async () => {
       try {
-        const response = await fetch('/verify/:token'); // Replace with your actual API endpoint
+        const response = await fetch('/verify/:token');
         const data = await response.json();
 
         if (data.success) {
-          navigate('/Dashboard'); // Redirect on success
+          navigate('/Dashboard');
         } else {
           console.error('Verification failed:', data.message);
-          // Handle verification failure (e.g., display error message)
         }
       } catch (error) {
         console.error('Error fetching verification data:', error);
-        // Handle errors appropriately (e.g., display a generic error message)
       } finally {
         setIsLoading(false); // Set loading state to false after data fetching
       }
