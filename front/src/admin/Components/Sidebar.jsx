@@ -5,7 +5,7 @@ const Sidebar = () => {
     <aside>
       <div class="container">
         <h2>Sidebar</h2>
-        <nav>
+        <nav className='sidebar'>
           <ul>
             <li><a href="#">Home</a></li>
             <li><a href="#">Analysis</a></li>
