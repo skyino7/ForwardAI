@@ -3,6 +3,7 @@ import BI from '../assets/BI.jpg'
 import './main.css';
 import { Navigate, Link } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
+import Navbar from '../Component/Navbar';
 
 const Login = () => {
 
@@ -54,6 +55,8 @@ const Login = () => {
   }
 
   return (
+    <>
+    <Navbar/>
     <div className='login'>
       <div className='login-form'>
         <h1>Forward AI+</h1>
@@ -71,7 +74,8 @@ const Login = () => {
       <div className='login-img'>
         <img src={BI} alt="" />
       </div>
-  </div>
+    </div>
+  </>
   )
 }
 

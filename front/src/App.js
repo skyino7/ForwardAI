@@ -38,9 +38,9 @@ function App() {
           <Route index element={<Home/>} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
-          {/* <Route path="/Dashboard" element={<Dashboard />} /> Adjusted path */}
+          <Route path="/Dashboard" element={<Dashboard />} />
 
-          <Route path="/Dashboard" element={isAuthenticated ? <Dashboard /> : <Navigate to="/login" />} />
+          {/* <Route path="/Dashboard" element={isAuthenticated ? <Dashboard /> : <Navigate to="/login" />} /> */}
 
           {/* {isAuthenticated ? (
             <Route path="/Dashboard" element={<Dashboard />} />

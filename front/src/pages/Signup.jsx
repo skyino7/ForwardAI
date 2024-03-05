@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+import Navbar from '../Component/Navbar';
 
 const Signup = () => {
 
@@ -47,25 +48,28 @@ const Signup = () => {
   }
 
   return (
-    <div className='signup'>
-      <h1>Forward AI+</h1>
-      <h3>Register</h3>
-      <form className='signup-form' onSubmit={handleSubmit}>
+    <>
+      <Navbar/>
+      <div className='signup'>
+        <h1>Forward AI+</h1>
+        <h3>Register</h3>
+        <form className='signup-form' onSubmit={handleSubmit}>
 
-        <label htmlFor="name">Full Name</label> <br />
-        <input type="text" name="name" id="name" value={formData.name} onChange={handleChange} required /> <br />
+          <label htmlFor="name">Full Name</label> <br />
+          <input type="text" name="name" id="name" value={formData.name} onChange={handleChange} required /> <br />
 
-        <label htmlFor="email">Email</label> <br />
-        <input type="email" name="email" id="email" value={formData.email} onChange={handleChange} required /> <br />
+          <label htmlFor="email">Email</label> <br />
+          <input type="email" name="email" id="email" value={formData.email} onChange={handleChange} required /> <br />
 
-        <label htmlFor="password">Password</label> <br />
-        <input type="password" name="password" id="password" value={formData.password} onChange={handleChange} required /> <br />
+          <label htmlFor="password">Password</label> <br />
+          <input type="password" name="password" id="password" value={formData.password} onChange={handleChange} required /> <br />
 
-        <button type="submit">Sign Up</button>
+          <button type="submit">Sign Up</button>
 
-        <p>Already have an account? <Link to="/login">Sign in</Link></p>
-      </form>
-    </div>
+          <p>Already have an account? <Link to="/login">Sign in</Link></p>
+        </form>
+      </div>
+    </>
   )
 }
 

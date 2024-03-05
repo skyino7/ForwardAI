@@ -1,5 +1,4 @@
 import React from 'react'
-import 'das'
 
 const Main = () => {
   return (
