@@ -1,5 +1,6 @@
 import React from 'react'
 import Navbar from '../Component/Navbar';
+import Footer from '../Component/Footer';
 
 const VerificationPending  = () => {
   return (
@@ -17,6 +18,7 @@ const VerificationPending  = () => {
           contact support for assistance.
         </p>
       </div>
+      <Footer />
     </>
   )
 }

@@ -5,6 +5,7 @@ import Offer from '../Component/Offer'
 import Clients from '../Component/Clients'
 import Started from '../Component/Started'
 import Navbar from '../Component/Navbar';
+import Footer from '../Component/Footer'
 
 const Home = () => {
   return (
@@ -15,6 +16,7 @@ const Home = () => {
         <Choose />
         <Clients />
         <Started />
+        <Footer />
     </>
   )
 }

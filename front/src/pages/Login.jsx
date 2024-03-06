@@ -4,6 +4,7 @@ import './main.css';
 import { Navigate, Link } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '../Component/Navbar';
+import Footer from '../Component/Footer';
 
 const Login = () => {
 
@@ -75,6 +76,7 @@ const Login = () => {
         <img src={BI} alt="" />
       </div>
     </div>
+    <Footer />
   </>
   )
 }

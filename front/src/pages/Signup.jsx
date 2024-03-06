@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import Navbar from '../Component/Navbar';
+import Footer from '../Component/Footer';
 
 const Signup = () => {
 
@@ -69,6 +70,7 @@ const Signup = () => {
           <p>Already have an account? <Link to="/login">Sign in</Link></p>
         </form>
       </div>
+      <Footer />
     </>
   )
 }
