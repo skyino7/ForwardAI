@@ -3,7 +3,7 @@ import React from 'react'
 const Main = () => {
   return (
     <main>
-      <div className="container main">
+      <div className="container-fluid main">
         <h2>Dashboard</h2>
         <p>Lorem ipsum dolor sit, amet consectetur adipisicing elit.
             Nihil cum asperiores iusto. Eveniet veniam aliquam, quibusdam voluptate
@@ -11,16 +11,52 @@ const Main = () => {
             mollitia dolore asperiores.</p>
 
             <div class="row">
-                <div class="column">Column 1</div>
-                <div class="column">Column 2</div>
-                <div class="column">Column 3</div>
+                <div class="col-lg-4">
+                    <h2>Column 1</h2>
+                    <div className="card p-3">
+                        <div className="card-body">
+                            <p>Lorem ipsum dolor sit, amet consectetur adipisicing elit.
+                            Nihil cum asperiores iusto. Eveniet veniam aliquam, quibusdam voluptate
+                            autem ab, voluptatibus nulla harum atque id est tempora soluta
+                            mollitia dolore asperiores.
+                            </p>
+                            <button className='btn btn-primary'>Save</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <h2>Column 1</h2>
+                    <div className="card p-3">
+                        <div className="card-body">
+                            <p>Lorem ipsum dolor sit, amet consectetur adipisicing elit.
+                            Nihil cum asperiores iusto. Eveniet veniam aliquam, quibusdam voluptate
+                            autem ab, voluptatibus nulla harum atque id est tempora soluta
+                            mollitia dolore asperiores.
+                            </p>
+                            <button className='btn btn-primary'>Save</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <h2>Column 1</h2>
+                    <div className="card p-3">
+                        <div className="card-body">
+                            <p>Lorem ipsum dolor sit, amet consectetur adipisicing elit.
+                            Nihil cum asperiores iusto. Eveniet veniam aliquam, quibusdam voluptate
+                            autem ab, voluptatibus nulla harum atque id est tempora soluta
+                            mollitia dolore asperiores.
+                            </p>
+                            <button className='btn btn-primary'>Save</button>
+                        </div>
+                    </div>
+                </div>
             </div>
 
-            <div class="row">
+            {/* <div class="row">
                 <div class="column">Column 1</div>
                 <div class="column">Column 2</div>
                 <div class="column">Column 3</div>
-            </div>
+            </div> */}
 
             {/* <div class="main-panel">
                 <div class="content-wrapper">

@@ -4,11 +4,11 @@ body {
     padding: 0;
   }
 
-  .container {
+  /* .container {
     max-width: 1200px;
     margin: 0 auto;
     padding: 0 10px;
-  }
+  } */
 
   header {
     background-color: #050F6C;
@@ -66,7 +66,7 @@ body {
     margin-left: 220px; /* considering sidebar width and margin */
   }
 
-  .row {
+  /* .row {
     display: flex;
     justify-content: space-around;
   }
@@ -79,4 +79,4 @@ body {
     text-align: center;
     border: 1px solid black;
     border-radius: 5px;
-  }
+  } */
