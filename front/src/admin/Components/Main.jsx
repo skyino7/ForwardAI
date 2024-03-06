@@ -3,14 +3,26 @@ import React from 'react'
 const Main = () => {
   return (
     <main>
-      <div className="container">
+      <div className="container main">
         <h2>Dashboard</h2>
         <p>Lorem ipsum dolor sit, amet consectetur adipisicing elit.
             Nihil cum asperiores iusto. Eveniet veniam aliquam, quibusdam voluptate
             autem ab, voluptatibus nulla harum atque id est tempora soluta
             mollitia dolore asperiores.</p>
 
-            <div class="main-panel">
+            <div class="row">
+                <div class="column">Column 1</div>
+                <div class="column">Column 2</div>
+                <div class="column">Column 3</div>
+            </div>
+
+            <div class="row">
+                <div class="column">Column 1</div>
+                <div class="column">Column 2</div>
+                <div class="column">Column 3</div>
+            </div>
+
+            {/* <div class="main-panel">
                 <div class="content-wrapper">
                 <div class="row">
                     <div class="col-lg-6 grid-margin stretch-card">
@@ -66,8 +78,9 @@ const Main = () => {
                     </div>
                     </div>
                 </div>
-                </div>
-        </div>
+            </div>
+        </div> */}
+
       </div>
     </main>
   )
