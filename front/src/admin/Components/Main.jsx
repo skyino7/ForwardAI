@@ -2,9 +2,9 @@ import React from 'react'
 
 const Main = () => {
   return (
-    <main>
+    <main style={{ marginTop: '58px' }}>
       <div className="container-fluid main">
-        <h2>Dashboard</h2>
+        <h2 className='text-black'>Dashboard</h2>
         <p>Lorem ipsum dolor sit, amet consectetur adipisicing elit.
             Nihil cum asperiores iusto. Eveniet veniam aliquam, quibusdam voluptate
             autem ab, voluptatibus nulla harum atque id est tempora soluta
@@ -12,8 +12,11 @@ const Main = () => {
 
             <div class="row">
                 <div class="col-lg-4">
-                    <h2>Column 1</h2>
-                    <div className="card p-3">
+                    <h2 className='text-black'>Column 1</h2>
+                    <div className="card">
+                        <div class="card-header">
+                            Column 1
+                        </div>
                         <div className="card-body">
                             <p>Lorem ipsum dolor sit, amet consectetur adipisicing elit.
                             Nihil cum asperiores iusto. Eveniet veniam aliquam, quibusdam voluptate
@@ -25,8 +28,11 @@ const Main = () => {
                     </div>
                 </div>
                 <div class="col-lg-4">
-                    <h2>Column 1</h2>
-                    <div className="card p-3">
+                    <h2 className='text-black'>Column 2</h2>
+                    <div className="card">
+                        <div class="card-header">
+                            Column 2
+                        </div>
                         <div className="card-body">
                             <p>Lorem ipsum dolor sit, amet consectetur adipisicing elit.
                             Nihil cum asperiores iusto. Eveniet veniam aliquam, quibusdam voluptate
@@ -38,8 +44,11 @@ const Main = () => {
                     </div>
                 </div>
                 <div class="col-lg-4">
-                    <h2>Column 1</h2>
-                    <div className="card p-3">
+                    <h2 className='text-black'>Column 3</h2>
+                    <div className="card">
+                        <div class="card-header">
+                            Column 3
+                        </div>
                         <div className="card-body">
                             <p>Lorem ipsum dolor sit, amet consectetur adipisicing elit.
                             Nihil cum asperiores iusto. Eveniet veniam aliquam, quibusdam voluptate
