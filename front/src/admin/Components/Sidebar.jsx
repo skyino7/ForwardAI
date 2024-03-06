@@ -3,9 +3,9 @@ import React from 'react'
 const Sidebar = () => {
   return (
     <aside>
-      <div class="container">
+      <div class="container sidebar">
         <h2>Sidebar</h2>
-        <nav className='sidebar'>
+        <nav className=''>
           <ul>
             <li><a href="#">Home</a></li>
             <li><a href="#">Analysis</a></li>
