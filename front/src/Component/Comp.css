@@ -3,9 +3,9 @@
       background-color: #050F6C;
       color: #fff;
       display: flex;
-      justify-content: space-between;
+      justify-content: space-around;
       align-items: center;
-      padding: 0px 50px;
+      padding: 10px 10px;
     }
 
     .nav-right {
@@ -24,11 +24,13 @@
     }
 
     .end {
+      /* margin-top: 5px; */
       margin-left: auto;
+      margin-right: 40px;
       cursor: pointer;
       background-color: #fff;
       color: #050F6C;
-      padding: 10px 15px;
+      padding: 10px 15px !important;
       border-radius: 30px;
     }
 

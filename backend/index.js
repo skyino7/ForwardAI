@@ -9,6 +9,13 @@ const crypto = require('crypto');
 const session = require('express-session');
 const nodemailer = require('nodemailer');
 const { OAuth2Client } = require('google-auth-library');
+const multer = require('multer');
+const util = require('util');
+const fs = require('fs');
+const unlinkAsync = util.promisify(fs.unlink);
+
+// const app = express();
+const upload = multer({ dest: 'uploads/' });
 
 app.use(cors({ credentials: true, origin: 'http://localhost:3000' }));
 
@@ -20,7 +27,15 @@ const config = {
   database: process.env.DB_NAME,
 };
 
+const dbConfig = {
+  connectionLimit: 10,
+  host: process.env.DB_HOST,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+};
+
 const pool = mysql.createPool(config);
+const pool2 = mysql.createPool(dbConfig);
 
 const CLIENT_ID = process.env.CLIENT_ID;
 const CLIENT_SECRET = process.env.CLIENT_SECRET;
@@ -307,6 +322,52 @@ app.get('/verify/:token', async (req, res) => {
     console.error('Error verifying email:', err);
     res.status(500).json({ message: 'Email verification failed' });
   }
+});
+
+app.post('/upload', upload.single('sqlFile'), async (req, res) => {
+  if (!req.file) {
+    return res.status(400).send('No files were uploaded.');
+  }
+
+  fs.readFile(req.file.path, 'utf8', async (err, data) => {
+    if (err) {
+      return res.status(500).send('Error reading file');
+    }
+
+    try {
+      const match = data.match(/CREATE DATABASE\s+IF NOT EXISTS\s+`?(\w+)`?/i);
+      if (!match || !match[1]) {
+        await unlinkAsync(req.file.path); // Delete the uploaded file
+        return res.status(400).send('Database name not found in the SQL script');
+      }
+
+      const databaseName = match[1];
+      const connection1 = await pool2.getConnection();
+
+      try {
+        const sqlStatements = data.split(';').filter(statement => statement.trim() !== '');
+
+        for (const statement of sqlStatements) {
+          await connection1.query(statement);
+        }
+
+        console.log('SQL script executed successfully');
+        await connection1.release();
+        return res.status(200).send('SQL script executed successfully');
+      } catch (error) {
+        console.error('Error executing SQL statement:', error);
+        // Drop the database if an error occurs
+        await connection1.query(`DROP DATABASE IF EXISTS ${mysql.escapeId(databaseName)}`);
+        console.log(`Database ${databaseName} dropped due to error.`);
+        await connection1.release();
+        await unlinkAsync(req.file.path); // Ensure file is deleted even in case of error
+        return res.status(500).send('Error executing SQL statement, database dropped');
+      }
+    } catch (error) {
+      console.error('Error processing file:', error);
+      return res.status(500).send('Error processing file');
+    }
+  });
 });
 
 // Start the server

@@ -5,7 +5,7 @@ import { Link } from "react-router-dom";
 
 const navbar = () => {
   return (
-    <div className='navbar'>
+    <div className=' navbar'>
         <p>Forward AI+</p>
         <div className='nav-right'>
           <li><Link to="/">Home</Link></li>

@@ -9,7 +9,7 @@ import VerificationPending from "./pages/VerificationPending";
 import Dashboard from "./admin/Dashboard";
 import { Navigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-import 'bootstrap/dist/css/bootstrap.min.css';
+// import 'bootstrap/dist/css/bootstrap.min.css';
 
 function App() {
 
