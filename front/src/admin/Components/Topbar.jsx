@@ -101,7 +101,7 @@ function Topbar() {
                   </li>
                   <li>
                       <a href="#" className="text-white nav-link px-0 align-middle">
-                          <i className="fs-4 bi-table"></i> <span className="ms-1 d-none d-sm-inline">Orders</span>
+                          <i className="fs-4 bi-table"></i> <span className="ms-1 d-none d-sm-inline">Analysis</span>
                       </a>
                   </li>
                   <li>

@@ -30,7 +30,7 @@ function TableList() {
           {tables.map((table, index) => (
             <div key={index}>
               <h3>{table.table}</h3>
-              <table className="col-lg-8 table table-bordered">
+              <table className="table table-bordered">
                 <thead>
                   <tr>
                     {table.records.length > 0 && Object.keys(table.records[0]).map((key, index) => (
