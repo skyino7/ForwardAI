@@ -11,6 +11,7 @@ import { Navigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 // import 'bootstrap/dist/css/bootstrap.min.css';
 import ClientForm from "./admin/Components/ClientForm";
+import TableList from "./admin/Components/Tables";
 
 function App() {
 
@@ -53,6 +54,7 @@ function App() {
           <Route path="/Confirmation" element={<Confirmation />} />
           <Route path="/VerificationPending" element={<VerificationPending />} />
           <Route path="/ClientForm" element={<ClientForm />} />
+          <Route path="/TableList" element={<TableList />} />
           {/* <Route path="/verify/:token"></Route> */}
           {/* <Route index element={<Features/>} />
           <Route index element={<Solutions/>} />

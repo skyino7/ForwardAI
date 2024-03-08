@@ -1,19 +1,20 @@
 import React from 'react';
 import Person from '../../assets/person.jpg';
+import './main.css'
 
 const ClientForm = () => {
   return (
     <div className="content-wrapper">
       <div className="container-xxl flex-grow-1 container-p-y">
-        <h4 className="py-3 mb-4"><span className="text-muted fw-light">Account Settings /</span> Account</h4>
+        <h4 className="py-3 mb-4"><span className="text-muted fw-light">FORWARD AI+ /</span> Account Settings</h4>
 
         <div className="row">
           <div className="col-md-12">
-            <ul className="nav nav-pills flex-column flex-md-row mb-3">
+            {/* <ul className="nav nav-pills flex-column flex-md-row mb-3">
               <li className="nav-item">
                 <a className="nav-link active" href="javascript:void(0);"><i className="bx bx-user me-1"></i> Account</a>
               </li>
-            </ul>
+            </ul> */}
             <div class="card mb-4">
                     <h5 class="card-header">Profile Details</h5>
                     {/* <!-- Account --> */}
@@ -83,7 +84,7 @@ const ClientForm = () => {
                               name="organization"
                               value="ThemeSelection" />
                           </div>
-                          <div class="col-md-6">
+                          <div class="col-md-6 number">
                             <label class="form-label" for="phoneNumber">Phone Number</label>
                             <div class="input-group mb-3">
                                 <div class="input-group-prepend">
@@ -107,6 +108,12 @@ const ClientForm = () => {
                             <label for="state" class="form-label">State</label>
                             <input class="form-control" type="text" id="state" name="state" placeholder="California" />
                           </div>
+
+                          <div class="mb-3 col-md-6">
+                            <label for="city" class="form-label">City</label>
+                            <input class="form-control" type="text" id="state" name="state" placeholder="LA" />
+                          </div>
+
                           <div class="mb-3 col-md-6">
                             <label class="form-label" for="country">Country</label>
                             <select id="country" class="select2 form-select">
@@ -137,7 +144,7 @@ const ClientForm = () => {
                               <option value="United States">United States</option>
                             </select>
                           </div>
-                          <div class="mb-3 col-md-6">
+                          {/* <div class="mb-3 col-md-6">
                             <label for="currency" class="form-label">Currency</label>
                             <select id="currency" class="select2 form-select">
                               <option value="">Select Currency</option>
@@ -146,7 +153,7 @@ const ClientForm = () => {
                               <option value="pound">Pound</option>
                               <option value="bitcoin">Bitcoin</option>
                             </select>
-                          </div>
+                          </div> */}
                         </div>
                         <div class="mt-2">
                           <button type="submit" class="btn btn-primary me-2">Save changes</button>

@@ -120,3 +120,7 @@ body {
     overflow-x: hidden;
     overflow-y: auto; /* Scrollable contents if viewport is shorter than content. */
     }
+
+    input[type=text], input[type=password] {
+      width: 1%;
+  }

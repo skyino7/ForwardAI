@@ -17,7 +17,7 @@ const unlinkAsync = util.promisify(fs.unlink);
 // const app = express();
 const upload = multer({ dest: 'uploads/' });
 
-app.use(cors({ credentials: true, origin: 'http://localhost:3001' }));
+app.use(cors({ credentials: true, origin: 'http://localhost:3000' }));
 
 // Database configuration
 const config = {
@@ -363,8 +363,8 @@ app.post('/upload', upload.single('sqlFile'), async (req, res) => {
       } catch (error) {
         console.error('Error executing SQL statement:', error);
         // Drop the database if an error occurs
-        await connection1.query(`DROP DATABASE IF EXISTS ${mysql.escapeId(databaseName)}`);
-        console.log(`Database ${databaseName} dropped due to error.`);
+        // await connection1.query(`DROP DATABASE IF EXISTS ${mysql.escapeId(databaseName)}`);
+        // console.log(`Database ${databaseName} dropped due to error.`);
         await connection1.release();
         await unlinkAsync(req.file.path); // Ensure file is deleted even in case of error
         return res.status(500).send('Error executing SQL statement, database dropped');
@@ -384,11 +384,9 @@ app.get('/username', async (req, res) => {
   }
 
   try {
-    // Assuming you have a users table and the userId stored in the session is the primary key
     const [rows] = await pool.execute('SELECT name FROM users WHERE userId = ?', [req.session.userId]);
 
     if (rows.length === 0) {
-      // No user found with the ID stored in the session
       return res.status(404).json({ message: 'User not found' });
     }
 
@@ -414,6 +412,39 @@ app.get('/logout', (req, res) => {
     }
   });
 });
+
+app.get('/tables', async (req, res) => {
+
+  const dbConfig = {
+    connectionLimit: 10,
+    host: process.env.DB_HOST,
+    user: process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
+    database: 'classicmodels',
+  };
+
+  const pool = mysql.createPool(dbConfig);
+  try {
+    const connection = await pool.getConnection();
+
+    const [rows] = await connection.query('SHOW TABLES');
+    const tables = rows.map(row => row[Object.keys(row)[0]]);
+    connection.release();
+
+    const tablesWithRecords = [];
+    for (const table of tables) {
+      const [tableRows] = await connection.query(`SELECT * FROM ${table}`);
+      tablesWithRecords.push({ table, records: tableRows });
+    }
+
+    const data = res.status(200).json(tablesWithRecords);
+    console.log(data);
+  } catch (error) {
+    console.error('Error fetching tables:', error);
+    res.status(500).send('Error fetching tables');
+  }
+});
+
 
 // Start the server
 app.listen(port, () => {

@@ -67,6 +67,10 @@ body {
         width: calc(100% - 20px) !important;
     }
 
+    .number input[type=text] {
+      width: auto !important;
+    }
+
   .login-form button {
     width: calc(100% - 20px);
     background-color: #050F6C;
