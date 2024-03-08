@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import Topbar from './Topbar';
 
 function TableList() {
   const [tables, setTables] = useState([]);
@@ -21,31 +22,36 @@ function TableList() {
   }, []);
 
   return (
-    <div className="container">
-      <h2 className='text-dark'>Tables with Records</h2>
-      {tables.map((table, index) => (
-        <div key={index}>
-          <h3>{table.table}</h3>
-          <table className="table table-bordered">
-            <thead>
-              <tr>
-                {table.records.length > 0 && Object.keys(table.records[0]).map((key, index) => (
-                  <th key={index}>{key}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {table.records.map((record, index) => (
-                <tr key={index}>
-                  {Object.values(record).map((value, index) => (
-                    <td key={index}>{value}</td>
+    <div className="container-fluid">
+      <div className="row flex-nowrap">
+        <Topbar/>
+        <div class="col py-3 pt-5 p col-lg-4">
+          <h2 className='text-dark'>Tables with Records</h2>
+          {tables.map((table, index) => (
+            <div key={index}>
+              <h3>{table.table}</h3>
+              <table className="col-lg-8 table table-bordered">
+                <thead>
+                  <tr>
+                    {table.records.length > 0 && Object.keys(table.records[0]).map((key, index) => (
+                      <th key={index}>{key}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {table.records.map((record, index) => (
+                    <tr key={index}>
+                      {Object.values(record).map((value, index) => (
+                        <td key={index}>{value}</td>
+                      ))}
+                    </tr>
                   ))}
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                </tbody>
+              </table>
+            </div>
+          ))}
         </div>
-      ))}
+      </div>
     </div>
   );
 }
