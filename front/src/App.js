@@ -10,6 +10,7 @@ import Dashboard from "./admin/Dashboard";
 import { Navigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 // import 'bootstrap/dist/css/bootstrap.min.css';
+import ClientForm from "./admin/Components/ClientForm";
 
 function App() {
 
@@ -41,7 +42,7 @@ function App() {
           <Route path="/signup" element={<Signup />} />
           <Route path="/Dashboard" element={<Dashboard />} />
 
-          {/* <Route path="/Dashboard" element={isAuthenticated ? <Dashboard /> : <Navigate to="/login" />} /> */}
+          <Route path="/Dashboard" element={isAuthenticated ? <Dashboard /> : <Navigate to="/login" />} />
 
           {/* {isAuthenticated ? (
             <Route path="/Dashboard" element={<Dashboard />} />
@@ -51,6 +52,7 @@ function App() {
 
           <Route path="/Confirmation" element={<Confirmation />} />
           <Route path="/VerificationPending" element={<VerificationPending />} />
+          <Route path="/ClientForm" element={<ClientForm />} />
           {/* <Route path="/verify/:token"></Route> */}
           {/* <Route index element={<Features/>} />
           <Route index element={<Solutions/>} />

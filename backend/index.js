@@ -17,7 +17,7 @@ const unlinkAsync = util.promisify(fs.unlink);
 // const app = express();
 const upload = multer({ dest: 'uploads/' });
 
-app.use(cors({ credentials: true, origin: 'http://localhost:3000' }));
+app.use(cors({ credentials: true, origin: 'http://localhost:3001' }));
 
 // Database configuration
 const config = {
@@ -161,7 +161,8 @@ const secretKey = generateRandomString(32);
 app.use(session({
   secret: secretKey,
   resave: false,
-  saveUninitialized: false
+  saveUninitialized: true,
+  // cookie: { secure: true }
 }));
 
 
@@ -169,6 +170,8 @@ app.use(session({
 app.post('/signup', async (req, res) => {
   try {
     const { name, email, password } = req.body;
+
+    console.log('Received signup request:', { name, email });
 
     // Check if name or email already exist in the database
     const [existingUsers] = await pool.execute(
@@ -191,6 +194,8 @@ app.post('/signup', async (req, res) => {
       'INSERT INTO users (name, email, password, verification_token, verified) VALUES (?, ?, ?, ?, ?)',
       [name, email, hashedPassword, verificationToken, false] // Set verified to false initially
     );
+
+    console.log('User created:', { name, email });
 
     // Check if the user was successfully created
     if (result.affectedRows > 0) {
@@ -269,11 +274,12 @@ app.post('/login', async (req, res) => {
       return res.status(401).json({ message: 'Invalid email or password' });
     }
 
-    // At this point, user is successfully authenticated
-
     // Store authentication status in the session
     req.session.authenticated = true;
     req.session.userId = user.userId; // Assuming userId is the primary key of the user
+
+    // Set the username in the session if needed
+    req.session.username = user.name;
 
     // return a success message
     res.status(200).json({ message: 'Login successful' });
@@ -366,6 +372,45 @@ app.post('/upload', upload.single('sqlFile'), async (req, res) => {
     } catch (error) {
       console.error('Error processing file:', error);
       return res.status(500).send('Error processing file');
+    }
+  });
+});
+
+// Route to get the username of the logged-in user
+app.get('/username', async (req, res) => {
+  // Check if the user is authenticated
+  if (!req.session || !req.session.userId) {
+    return res.status(401).json({ message: 'Unauthorized' });
+  }
+
+  try {
+    // Assuming you have a users table and the userId stored in the session is the primary key
+    const [rows] = await pool.execute('SELECT name FROM users WHERE userId = ?', [req.session.userId]);
+
+    if (rows.length === 0) {
+      // No user found with the ID stored in the session
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // // Send back the username
+    // res.json({ username: rows[0].name });
+    const username = req.session.username;
+    res.json({ username });
+  } catch (err) {
+    console.error('Error fetching username:', err);
+    res.status(500).json({ message: 'Internal Server Error' });
+  }
+});
+
+app.get('/logout', (req, res) => {
+  req.session.destroy(err => {
+    if (err) {
+      console.log(err);
+      res.status(500).send('Could not log out, please try again.');
+    } else {
+      console.log('Logged out successfully.');
+      res.status(200).json({ message: 'Logged out successfully.' });
+      // res.redirect('/login');
     }
   });
 });

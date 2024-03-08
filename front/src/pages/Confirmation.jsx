@@ -33,7 +33,7 @@ const Confirmation = () => {
       {isLoading ? (
         <p>Loading...</p>
       ) : (
-        <div>
+        <div className='container px-5 py-5'>
           <h2>Verification Successful!</h2>
           <p>Your account has been verified. Redirecting to the dashboard...</p>
           <p>

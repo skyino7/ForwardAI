@@ -6,7 +6,7 @@ const VerificationPending  = () => {
   return (
     <>
       <Navbar/>
-      <div className="verification-pending">
+      <div className="container px-5 py-5 verification-pending">
         <h1>Verification Pending</h1>
         <p>
           Thank you for signing up! An email has been sent to your email address with instructions
