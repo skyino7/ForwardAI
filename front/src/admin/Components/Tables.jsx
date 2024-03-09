@@ -27,10 +27,10 @@ function TableList() {
       <div className="row flex-nowrap">
         <Topbar />
         <div className="col py-3 pt-5 p col-lg-4">
-          <h2>Tables with Records</h2>
+          <h2 className='text-dark text-uppercase fw-bold pb-5'>Tables with Records</h2>
           {tables.map((table, index) => (
             <div key={index}>
-              <h3>{table}</h3>
+              <h3 className='text-capitalize'>{table}</h3>
               <Link to={`/tables/${table}`}>View Records</Link>
             </div>
           ))}

@@ -6,19 +6,17 @@ function TableDetails({ match }) {
   const { tableName } = useParams();
   const [tableData, setTableData] = useState(null);
   const [error, setError] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
 
   useEffect(() => {
     const fetchTableData = async () => {
       try {
-        // const tableName = match?.params?.tableName;
-        console.log('Table name:', tableName);
-
         const response = await fetch(`/tables/${tableName}`);
         if (!response.ok) {
           throw new Error('Failed to fetch table data');
         }
         const data = await response.json();
-        console.log(tableName);
         setTableData(data);
       } catch (error) {
         console.error('Error fetching table data:', error);
@@ -29,6 +27,12 @@ function TableDetails({ match }) {
     fetchTableData();
   }, [tableName]);
 
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentItems = tableData ? tableData.records.slice(indexOfFirstItem, indexOfLastItem) : [];
+
+  const paginate = (pageNumber) => setCurrentPage(pageNumber);
+
   return (
     <div className="container-fluid">
       <div className="row flex-nowrap">
@@ -38,27 +42,43 @@ function TableDetails({ match }) {
           {tableData && tableData.table && (
             <>
               <h2 className='text-dark text-uppercase'>{tableData.table}</h2>
-              {tableData.records && tableData.records.map((record, index) => (
-                <div key={index}>
-                  {/* <h3>{index + 1}</h3> */}
+              {tableData.records.length === 0 ? (
+                <div className="alert alert-info">No records found</div>
+              ) : (
+                <div className="table table-sm">
                   <table className="table table-bordered">
                     <thead className='text-uppercase'>
                       <tr>
-                        {Object.keys(record).map((key, index) => (
+                        {Object.keys(tableData.records[0]).map((key, index) => (
                           <th key={index}>{key}</th>
                         ))}
                       </tr>
                     </thead>
                     <tbody>
-                      <tr>
-                        {Object.values(record).map((value, index) => (
-                          <td key={index}>{value}</td>
-                        ))}
-                      </tr>
+                      {currentItems.map((record, index) => (
+                        <tr key={index}>
+                          {Object.values(record).map((value, index) => (
+                            <td key={index}>{value}</td>
+                          ))}
+                        </tr>
+                      ))}
                     </tbody>
                   </table>
                 </div>
-              ))}
+              )}
+              {tableData.records.length > itemsPerPage && (
+                <nav>
+                  <ul className="pagination">
+                    {Array.from({ length: Math.ceil(tableData.records.length / itemsPerPage) }, (_, i) => i + 1).map((number) => (
+                      <li key={number} className="page-item">
+                        <button onClick={() => paginate(number)} className="page-link">
+                          {number}
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                </nav>
+              )}
             </>
           )}
         </div>
