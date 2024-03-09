@@ -3,8 +3,8 @@ import Topbar from './Topbar'
 
 const Main = () => {
 
-    const [selectedFile, setSelectedFile] = useState(null);
-    const [message, setMessage] = useState('');
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [message, setMessage] = useState('');
 
   const handleFileChange = (event) => {
     setSelectedFile(event.target.files[0]);

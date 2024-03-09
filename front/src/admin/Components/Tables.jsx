@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import Topbar from './Topbar';
 
 function TableList() {
@@ -7,7 +8,7 @@ function TableList() {
   useEffect(() => {
     const fetchTables = async () => {
       try {
-        const response = await fetch('http://localhost:3000/tables');
+        const response = await fetch('/tables');
         if (!response.ok) {
           throw new Error('Failed to fetch tables');
         }
@@ -24,30 +25,13 @@ function TableList() {
   return (
     <div className="container-fluid">
       <div className="row flex-nowrap">
-        <Topbar/>
-        <div class="col py-3 pt-5 p col-lg-4">
-          <h2 className='text-dark'>Tables with Records</h2>
+        <Topbar />
+        <div className="col py-3 pt-5 p col-lg-4">
+          <h2>Tables with Records</h2>
           {tables.map((table, index) => (
             <div key={index}>
-              <h3>{table.table}</h3>
-              <table className="table table-bordered">
-                <thead>
-                  <tr>
-                    {table.records.length > 0 && Object.keys(table.records[0]).map((key, index) => (
-                      <th key={index}>{key}</th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {table.records.map((record, index) => (
-                    <tr key={index}>
-                      {Object.values(record).map((value, index) => (
-                        <td key={index}>{value}</td>
-                      ))}
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+              <h3>{table}</h3>
+              <Link to={`/tables/${table}`}>View Records</Link>
             </div>
           ))}
         </div>

@@ -17,7 +17,7 @@ const unlinkAsync = util.promisify(fs.unlink);
 // const app = express();
 const upload = multer({ dest: 'uploads/' });
 
-app.use(cors({ credentials: true, origin: 'http://localhost:3000' }));
+app.use(cors({ credentials: true, origin: 'http://localhost:3001' }));
 
 // Database configuration
 const config = {
@@ -413,6 +413,16 @@ app.get('/logout', (req, res) => {
   });
 });
 
+// const dbConfig2 = {
+//   connectionLimit: 10,
+//   host: process.env.DB_HOST,
+//   user: process.env.DB_USER,
+//   password: process.env.DB_PASSWORD,
+//   database: 'classicmodels',
+// };
+
+// const pool3 = mysql.createPool(dbConfig2);
+
 app.get('/tables', async (req, res) => {
 
   const dbConfig = {
@@ -431,19 +441,62 @@ app.get('/tables', async (req, res) => {
     const tables = rows.map(row => row[Object.keys(row)[0]]);
     connection.release();
 
-    const tablesWithRecords = [];
-    for (const table of tables) {
-      const [tableRows] = await connection.query(`SELECT * FROM ${table}`);
-      tablesWithRecords.push({ table, records: tableRows });
-    }
+    // const tablesWithRecords = [];
+    // for (const table of tables) {
+    //   const [tableRows] = await connection.query(`SELECT * FROM ${table}`);
+    //   tablesWithRecords.push({ table, records: tableRows });
+    // }
 
-    const data = res.status(200).json(tablesWithRecords);
-    console.log(data);
+    const data = res.status(200).json(tables);
+    // console.log(data);
   } catch (error) {
     console.error('Error fetching tables:', error);
     res.status(500).send('Error fetching tables');
   }
 });
+
+app.get('/tables/:tableName', async (req, res) => {
+  console.log('Received request for table:', req.params?.tableName); // Debug: log the requested table name
+
+  const dbConfig = {
+    connectionLimit: 10,
+    host: process.env.DB_HOST,
+    user: process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
+    database: 'classicmodels',
+  };
+
+  console.log('Database configuration:', dbConfig); // Debug: log the database configuration
+
+  const pool = mysql.createPool(dbConfig);
+  let connection;
+
+  const tableName = req.params?.tableName;
+
+  if (!tableName) {
+    console.log('Table name is missing'); // Debug: log if table name is missing
+    return res.status(400).send('Missing table name parameter');
+  }
+
+  try {
+    connection = await pool.getConnection();
+    console.log('Connected to database'); // Debug: log when connected to database
+
+    const [tableRows] = await connection.query(`SELECT * FROM ??`, [tableName]);
+    console.log('Fetched table rows:', tableRows); // Debug: log the fetched table rows
+
+    res.status(200).json({ table: tableName, records: tableRows });
+  } catch (error) {
+    console.error('Error fetching table:', error);
+    res.status(500).send('Error fetching table');
+  } finally {
+    if (connection) {
+      console.log('Releasing database connection'); // Debug: log when releasing the connection
+      connection.release();
+    }
+  }
+});
+
 
 
 // Start the server

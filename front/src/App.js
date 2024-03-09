@@ -12,6 +12,9 @@ import { useEffect, useState } from "react";
 // import 'bootstrap/dist/css/bootstrap.min.css';
 import ClientForm from "./admin/Components/ClientForm";
 import TableList from "./admin/Components/Tables";
+import TableDetails from "./admin/Components/TableDetails";
+
+
 
 function App() {
 
@@ -54,7 +57,13 @@ function App() {
           <Route path="/Confirmation" element={<Confirmation />} />
           <Route path="/VerificationPending" element={<VerificationPending />} />
           <Route path="/ClientForm" element={<ClientForm />} />
-          <Route path="/TableList" element={<TableList />} />
+          <Route exact path="/TableList" element={<TableList />} />
+
+          {/* <Route exact path="/TableList" component={TableList} /> */}
+          <Route path="/tables/:tableName" element={<TableDetails />} />
+          {/* <Route path="/TableDetails" element={<TableDetails />} /> */}
+          {/* <Route path="/tables/:tableName" component={TableDetails} /> */}
+
           {/* <Route path="/verify/:token"></Route> */}
           {/* <Route index element={<Features/>} />
           <Route index element={<Solutions/>} />
