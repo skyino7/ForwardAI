@@ -1,5 +1,5 @@
-// import ReactDOM from "react-dom/client";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Layout from "./pages/Layout";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
@@ -7,17 +7,11 @@ import Signup from "./pages/Signup";
 import Confirmation from "./pages/Confirmation";
 import VerificationPending from "./pages/VerificationPending";
 import Dashboard from "./admin/Dashboard";
-import { Navigate } from "react-router-dom";
-import { useEffect, useState } from "react";
-// import 'bootstrap/dist/css/bootstrap.min.css';
 import ClientForm from "./admin/Components/ClientForm";
 import TableList from "./admin/Components/Tables";
 import TableDetails from "./admin/Components/TableDetails";
 
-
-
 function App() {
-
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   useEffect(() => {
@@ -25,6 +19,7 @@ function App() {
     fetch('/isAuthenticated')
       .then(response => {
         if (response.ok) {
+          console.log(response.json);
           return response.json();
         }
         throw new Error('Network response was not ok.');
@@ -40,35 +35,23 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<Layout/>}>
-          <Route index element={<Home/>} />
+        <Route path="/" element={<Layout />}>
+          <Route index element={<Home />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
-          <Route path="/Dashboard" element={<Dashboard />} />
-
-          <Route path="/Dashboard" element={isAuthenticated ? <Dashboard /> : <Navigate to="/login" />} />
-
-          {/* {isAuthenticated ? (
-            <Route path="/Dashboard" element={<Dashboard />} />
-          ) : (
-            <Navigate to="/login" />
-          )} */}
-
           <Route path="/Confirmation" element={<Confirmation />} />
           <Route path="/VerificationPending" element={<VerificationPending />} />
+
+          <Route path="/Dashboard" element={isAuthenticated ? <Dashboard /> : <Navigate to="/login" />} />
+          <Route path="/ClientForm" element={isAuthenticated ? <ClientForm /> : <Navigate to="/login" />} />
+          <Route exact path="/TableList" element={isAuthenticated ? <TableList /> : <Navigate to="/login" />} />
+          <Route path="/tables/:tableName" element={isAuthenticated ? <TableDetails /> : <Navigate to="/login" />} />
+
+          {/* <Route path="/Dashboard" element={<Dashboard />} />
           <Route path="/ClientForm" element={<ClientForm />} />
           <Route exact path="/TableList" element={<TableList />} />
+          <Route path="/tables/:tableName" element={<TableDetails />} /> */}
 
-          {/* <Route exact path="/TableList" component={TableList} /> */}
-          <Route path="/tables/:tableName" element={<TableDetails />} />
-          {/* <Route path="/TableDetails" element={<TableDetails />} /> */}
-          {/* <Route path="/tables/:tableName" component={TableDetails} /> */}
-
-          {/* <Route path="/verify/:token"></Route> */}
-          {/* <Route index element={<Features/>} />
-          <Route index element={<Solutions/>} />
-          <Route index element={<Contact/>} />
-          <Route index element={<Signup/>} />  */}
         </Route>
       </Routes>
     </BrowserRouter>
