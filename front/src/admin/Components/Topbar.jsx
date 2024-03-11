@@ -101,6 +101,11 @@ function Topbar() {
                         </a>
                     </li>
                     <li>
+                        <a href="/QueryBuilder" className="text-white nav-link px-0 align-middle">
+                            <i className="fs-4 bi-table"></i> <span className="ms-1 d-none d-sm-inline">Query Builder</span>
+                        </a>
+                    </li>
+                    <li>
                         <a href="#" onClick={() => setBootstrapOpen(!bootstrapOpen)} aria-expanded={bootstrapOpen} className="text-white nav-link px-0 align-middle ">
                             <i className="fs-4 bi-bootstrap"></i> <span className="ms-1 d-none d-sm-inline">Charts</span>
                         </a>

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useDrag, useDrop, DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
+import Topbar from './Topbar';
 
 const TableItem = ({ table, onDrop }) => {
   const [{ isDragging }, drag] = useDrag({
@@ -65,39 +66,65 @@ const QueryBuilder = () => {
       return;
     }
 
-    // Concatenate search rule and group rule with the query
-    const fullQuery = `${query} ${searchRule} ${groupRule}`.trim();
-    console.log('Full query:', fullQuery);
-
-    fetch('/records', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ query: fullQuery }),
-    })
-      .then(response => response.json())
-      .then(data => {
-        if (data.error) {
-          if (data.error === 'Query not found') {
-            setError('Query not found');
-          } else if (data.error === 'Query syntax error') {
-            setError('Query syntax error. Please check your query and try again.');
-          } else {
-            setError(data.error);
-          }
-          setRecords([]);
-          setColumns([]);
-        } else {
-          setError('');
-          setRecords(data.records);
-          setColumns(Object.keys(data.records[0]));
-        }
+    // Check if the query contains only the table name
+    const trimmedQuery = query.trim();
+    const tableNames = tables.map(table => table.toLowerCase());
+    if (tableNames.includes(trimmedQuery.toLowerCase())) {
+      // Query contains only the table name, so fetch all records for that table
+      fetch(`/records/${trimmedQuery}`, {
+        method: 'GET',
       })
-      .catch(error => {
-        console.error('Error fetching records:', error);
-      });
+        .then(response => response.json())
+        .then(data => {
+          if (data.error) {
+            setError(data.error);
+            setRecords([]);
+            setColumns([]);
+          } else {
+            setError('');
+            setRecords(data.records);
+            setColumns(Object.keys(data.records[0]));
+          }
+        })
+        .catch(error => {
+          console.error('Error fetching records:', error);
+        });
+    } else {
+      // Concatenate search rule and group rule with the query
+      const fullQuery = `${query} ${searchRule} ${groupRule}`.trim();
+      console.log('Full query:', fullQuery);
+
+      fetch('/records', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ query: fullQuery }),
+      })
+        .then(response => response.json())
+        .then(data => {
+          if (data.error) {
+            if (data.error === 'Query not found') {
+              setError('Query not found');
+            } else if (data.error === 'Query syntax error') {
+              setError('Query syntax error. Please check your query and try again.');
+            } else {
+              setError(data.error);
+            }
+            setRecords([]);
+            setColumns([]);
+          } else {
+            setError('');
+            setRecords(data.records);
+            setColumns(Object.keys(data.records[0]));
+          }
+        })
+        .catch(error => {
+          console.error('Error fetching records:', error);
+        });
+    }
   };
+
 
   const handleInputChange = (e) => {
     setQuery(e.target.value);
@@ -122,12 +149,14 @@ const QueryBuilder = () => {
   const indexOfFirstRecord = indexOfLastRecord - recordsPerPage;
   const currentRecords = records.slice(indexOfFirstRecord, indexOfLastRecord);
 
-  // Change page
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
   return (
     <DndProvider backend={HTML5Backend}>
-      <div className='container my-5'>
+      <div className="container-fluid">
+        <div className="row flex-nowrap">
+        <Topbar/>
+      <div className='col py-3 px-5 pt-5 p col-lg-10 my-5'>
         <h1 className='mb-4'>Query Builder</h1>
         <h3 className='mb-4 shadow-sm p-3 mb-5 bg-body rounded'>Tables In the Database</h3>
         <div className="row mb-4">
@@ -211,6 +240,8 @@ const QueryBuilder = () => {
             ))}
           </ul>
         </nav>
+      </div>
+      </div>
       </div>
     </DndProvider>
   );

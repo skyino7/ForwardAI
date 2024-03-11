@@ -505,6 +505,42 @@ app.get('/tables/:tableName', async (req, res) => {
   }
 });
 
+app.get('/records/:tableName', async (req, res) => {
+
+  const dbConfig = {
+    connectionLimit: 10,
+    host: process.env.DB_HOST,
+    user: process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
+    database: 'classicmodels',
+  };
+
+  const pool = mysql.createPool(dbConfig);
+
+  connection = await pool.getConnection();
+
+  const tableName = req.params?.tableName;
+
+  try {
+    connection = await pool.getConnection();
+    console.log('Connected to database'); // Debug: log when connected to database
+
+    const [tableRows] = await connection.query(`SELECT * FROM ??`, [tableName]);
+    console.log('Fetched table rows:', tableRows); // Debug: log the fetched table rows
+
+    res.status(200).json({ table: tableName, records: tableRows });
+  } catch (error) {
+    console.error('Error fetching table:', error);
+    res.status(500).send('Error fetching table');
+  } finally {
+    if (connection) {
+      console.log('Releasing database connection'); // Debug: log when releasing the connection
+      connection.release();
+    }
+  }
+
+});
+
 app.post('/records', async (req, res) => {
 
   const dbConfig = {
