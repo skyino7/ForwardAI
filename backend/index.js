@@ -239,103 +239,63 @@ async function sendVerificationEmail(email, token, name) {
 }
 
 // Middleware to check if user is authenticated
-function isAuthenticated(req, res) {
+function isAuthenticated(req, res, next) {
   // Check if user session exists
-  // if (req.session.authenticated) {
-  //   // User is authenticated, proceed to next middleware or route handler
-  //   next();
-  // } else {
-  //   // User is not authenticated, redirect to login page
-  //   res.status(401).send('Unauthorized');
-  //   // res.redirect('/login');
-  // }
   if (req.session.authenticated) {
-    return res.json({ isAuthenticated: true });
+    // User is authenticated, proceed to next middleware or route handler
+    next();
   } else {
-    return res.json({ isAuthenticated: false });
+    // User is not authenticated, redirect to login page
+    res.status(401).send('Unauthorized');
+    // res.redirect('/dashboard');
   }
+
+  // if (req.session.authenticated) {
+  //   return res.json({ isAuthenticated: true });
+  // } else {
+  //   return res.json({ isAuthenticated: false });
+  // }
 }
 
 // Route for user login
 app.post('/login', async (req, res) => {
-  // try {
-  //   const { email, password } = req.body;
-
-  //   // Fetch user from the database based on email
-  //   const [users] = await pool.execute(
-  //     'SELECT * FROM users WHERE email = ?',
-  //     [email]
-  //   );
-
-  //   if (users.length === 0) {
-  //     // If no user found with the provided email, return an error
-  //     return res.status(401).json({ message: 'Invalid email or password' });
-  //   }
-
-  //   // Verify password
-  //   const isPasswordValid = await bcrypt.compare(password, user.password);
-  //   if (!isPasswordValid) {
-  //     // If password does not match, return an error
-  //     return res.status(401).json({ message: 'Invalid email or password' });
-  //   }
-
-  //   // Store authentication status in the session
-  //   if (res.ok) {
-  //     const user = users[0].name;
-  //     req.session.authenticated = true;
-  //     req.session.userId = user.userId; // Assuming userId is the primary key of the user
-
-  //     // Set the username in the session if needed
-  //     req.session.username = user.name;
-
-  //     const token = jwt.sign({ userId: user.userId }, process.env.JWT_SECRET, {
-  //       expiresIn: '1h',
-  //     });
-  //     res.cookie('token', token);
-
-  //   }
-
-  //   // return a success message
-  //   res.status(200).json({ message: 'Login successful' });
-  // } catch (err) {
-  //   console.error('Error:', err);
-  //   res.status(500).json({ message: 'Internal Server Error' });
-  // }
-
   try {
-    const { email, password } = req.body; // Destructure email and password from request body
+    const { email, password } = req.body;
 
-    const query = 'SELECT * FROM users WHERE email = ?';
-    const params = [email]; // Use the email obtained from the request body
-    const [rows] = await pool.execute(query, params);
+    // Fetch user from the database based on email
+    const [users] = await pool.execute(
+      'SELECT * FROM users WHERE email = ?',
+      [email]
+    );
 
-    if (rows.length !== 1) {
+    if (users.length === 0) {
+      // If no user found with the provided email, return an error
       return res.status(401).json({ message: 'Invalid email or password' });
     }
-    const user = rows[0];
+
+    const user = users[0];
+
+    // Verify password
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
+      // If password does not match, return an error
       return res.status(401).json({ message: 'Invalid email or password' });
     }
 
-    delete user.password;
-
-    const token = jwt.sign({ userId: user.name }, process.env.JWT_SECRET, {
+    // Generate JWT token
+    const token = jwt.sign({ userId: user.userId }, process.env.JWT_SECRET, {
       expiresIn: '1h',
     });
 
-    req.session.authenticated = true;
-    // req.session.userId = user.userId;
-    req.session.username = user.name;
-    res.cookie('authToken', token, { httpOnly: true, secure: true, sameSite: 'none' });
-    res.status(200).json({ message: 'Login successful' });
+    // Send token in response
+    res.json({ token });
 
-  } catch(err) {
+  } catch (err) {
     console.error('Error:', err);
     res.status(500).json({ message: 'Internal Server Error' });
   }
-
 });
+
 
 // Route for dashboard (authenticated route)
 app.get('/Dashboard', isAuthenticated, (req, res) => {
@@ -545,7 +505,34 @@ app.get('/tables/:tableName', async (req, res) => {
   }
 });
 
+app.post('/records', async (req, res) => {
 
+  const dbConfig = {
+    connectionLimit: 10,
+    host: process.env.DB_HOST,
+    user: process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
+    database: 'classicmodels',
+  };
+
+  const pool = mysql.createPool(dbConfig);
+
+  const { query } = req.body;
+
+  try {
+    const connection = await pool.getConnection();
+    const [rows, fields] = await connection.query(query);
+    connection.release();
+
+    // Extract column names
+    const columns = fields.map(field => field.name);
+
+    res.json({ records: rows, columns });
+  } catch (error) {
+    console.error('Error fetching records:', error);
+    res.status(500).json({ error: 'Query syntax error. Please check your query and try again.' });
+  }
+});
 
 // Start the server
 app.listen(port, () => {

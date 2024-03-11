@@ -10,6 +10,9 @@ import Dashboard from "./admin/Dashboard";
 import ClientForm from "./admin/Components/ClientForm";
 import TableList from "./admin/Components/Tables";
 import TableDetails from "./admin/Components/TableDetails";
+import QueryBuilder from "./admin/Components/QueryBuilder";
+// import { DndProvider } from 'react-dnd';
+// import { HTML5Backend } from 'react-dnd-html5-backend';
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -42,15 +45,20 @@ function App() {
           <Route path="/Confirmation" element={<Confirmation />} />
           <Route path="/VerificationPending" element={<VerificationPending />} />
 
-          <Route path="/Dashboard" element={isAuthenticated ? <Dashboard /> : <Navigate to="/login" />} />
+          {/* <Route path="/Dashboard" element={isAuthenticated ? <Dashboard /> : <Navigate to="/login" />} />
           <Route path="/ClientForm" element={isAuthenticated ? <ClientForm /> : <Navigate to="/login" />} />
           <Route exact path="/TableList" element={isAuthenticated ? <TableList /> : <Navigate to="/login" />} />
-          <Route path="/tables/:tableName" element={isAuthenticated ? <TableDetails /> : <Navigate to="/login" />} />
+          <Route path="/tables/:tableName" element={isAuthenticated ? <TableDetails /> : <Navigate to="/login" />} /> */}
 
-          {/* <Route path="/Dashboard" element={<Dashboard />} />
+          <Route path="/Dashboard" element={<Dashboard />} />
           <Route path="/ClientForm" element={<ClientForm />} />
           <Route exact path="/TableList" element={<TableList />} />
-          <Route path="/tables/:tableName" element={<TableDetails />} /> */}
+          <Route path="/tables/:tableName" element={<TableDetails />} />
+
+
+              {/* <QueryBuilder /> */}
+
+          <Route path="/QueryBuilder" element={<QueryBuilder />} />
 
         </Route>
       </Routes>

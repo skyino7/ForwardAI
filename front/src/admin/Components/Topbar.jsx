@@ -75,8 +75,8 @@ function Topbar() {
                 <ul className="nav nav-pills flex-column mb-sm-auto mb-0 align-items-center align-items-sm-start" id="menu">
                     <li className="nav-item">
                         <a href="/dashboard" className="nav-link align-middle px-0">
-                            <i className="fas-4 bi-house"></i>
-                            <FontAwesomeIcon icon={["fas", "bars"]} />
+                            <i className="fa bi-house"></i>
+                            <FontAwesomeIcon icon={["fa", "bars"]} />
                             <span className="ms-1 d-none d-sm-inline">Home</span>
                         </a>
                     </li>
@@ -86,12 +86,12 @@ function Topbar() {
                         </a>
                         <Collapse in={dashboardOpen}>
                             <ul className="collapse show nav flex-column ms-1" id="submenu1">
-                                <li className="w-100">
+                                {/* <li className="w-100">
                                     <a href="#" className="nav-link px-0"> <span className="d-none d-sm-inline">Item</span> 1 </a>
                                 </li>
                                 <li>
                                     <a href="#" className="nav-link px-0"> <span className="d-none d-sm-inline">Item</span> 2 </a>
-                                </li>
+                                </li> */}
                             </ul>
                         </Collapse>
                     </li>

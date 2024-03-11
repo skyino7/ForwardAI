@@ -38,6 +38,10 @@ const Login = () => {
       });
 
       if (response.ok){
+        const data = await response.json();
+        const token = data.token;
+        localStorage.setItem("token", token)
+        // console.log(token);
         setRedirect(true);
         setMessage('Login Successful');
         navigate('/Dashboard');
@@ -57,27 +61,27 @@ const Login = () => {
 
   return (
     <>
-    <Navbar/>
-    <div className='login'>
-      <div className='login-form'>
-        <h1>Forward AI+</h1>
-        <h3>Sign In</h3>
-        <form onSubmit={handleSubmit}>
-          <label htmlFor="email">Email</label><br />
-          <input type="email" name="email" value={formData.email} onChange={handleChange} /><br />
-          <label htmlFor="password">Password</label><br />
-          <input type="password" name="password" value={formData.password} onChange={handleChange}/><br />
-          <button type="submit">Login</button>
-          <p>Don't have an account? <Link to="/signup">Sign Up</Link></p>
-        </form>
-        {message && <div className="message">{message}</div>}
+      <Navbar/>
+      <div className='login'>
+        <div className='login-form'>
+          <h1>Forward AI+</h1>
+          <h3>Sign In</h3>
+          <form onSubmit={handleSubmit}>
+            <label htmlFor="email">Email</label><br />
+            <input type="email" name="email" value={formData.email} onChange={handleChange} /><br />
+            <label htmlFor="password">Password</label><br />
+            <input type="password" name="password" value={formData.password} onChange={handleChange}/><br />
+            <button type="submit">Login</button>
+            <p>Don't have an account? <Link to="/signup">Sign Up</Link></p>
+          </form>
+          {message && <div className="message">{message}</div>}
+        </div>
+        <div className='login-img'>
+          <img src={BI} alt="" />
+        </div>
       </div>
-      <div className='login-img'>
-        <img src={BI} alt="" />
-      </div>
-    </div>
-    <Footer />
-  </>
+      <Footer />
+    </>
   )
 }
 
