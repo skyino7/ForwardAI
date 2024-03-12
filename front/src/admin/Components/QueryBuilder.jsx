@@ -160,6 +160,7 @@ const QueryBuilder = () => {
         <h1 className='mb-4'>Query Builder</h1>
         <h3 className='mb-4 shadow-sm p-3 mb-5 bg-body rounded'>Tables In the Database</h3>
         <div className="row mb-4">
+        {tables.length === 0 && <p>No Tables found</p>}
           {tables.map(table => (
             <div key={table} className="col-lg-3 col-md-4 text-capitalize">
               <TableItem table={table} onDrop={handleDropItem} />
@@ -225,12 +226,12 @@ const QueryBuilder = () => {
             </table>
           )}
         </div>
-        <div>
+        {/* <div>
           <h2 className='text-dark mb-3'>Dropped Items</h2>
           {droppedItems.map((item, index) => (
             <div key={index} className="bg-light p-2 mb-2">{item.table}</div>
           ))}
-        </div>
+        </div> */}
         <nav className="mt-4">
           <ul className="pagination justify-content-center">
             {[...Array(Math.ceil(records.length / recordsPerPage)).keys()].map(number => (

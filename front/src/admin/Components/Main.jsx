@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import Topbar from './Topbar'
+import UploadCsv from './UploadCsv'
 
 const Main = () => {
 
@@ -173,7 +174,8 @@ const Main = () => {
     <div className="container-fluid">
         <div className="row flex-nowrap">
             <Topbar/>
-            <div class="col py-3 pt-5 p col-lg-4">
+            <div className="col py-3 pt-5 p col-lg-4">
+              <div className="container">
               <div className="card">
                 <div class="card-header">
                   <h1>Upload SQL Script</h1>
@@ -187,6 +189,8 @@ const Main = () => {
                   {message && <p className="mt-3 p-3 mb-2 bg-danger text-white">{message}</p>}
                 </div>
               </div>
+              <UploadCsv />
+            </div>
             </div>
         </div>
     </div>

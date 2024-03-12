@@ -10,6 +10,7 @@
   "license": "ISC",
   "dependencies": {
     "cookie-parser": "^1.4.6",
+    "csv-parser": "^3.0.0",
     "google-auth-library": "^9.6.3",
     "http-proxy-middleware": "^2.0.6",
     "jsonwebtoken": "^9.0.2",

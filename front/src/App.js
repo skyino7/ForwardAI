@@ -13,6 +13,8 @@ import TableDetails from "./admin/Components/TableDetails";
 import QueryBuilder from "./admin/Components/QueryBuilder";
 // import { DndProvider } from 'react-dnd';
 // import { HTML5Backend } from 'react-dnd-html5-backend';
+import NotFound from "./pages/NotFound";
+import UploadCsv from "./admin/Components/UploadCsv";
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -59,6 +61,8 @@ function App() {
               {/* <QueryBuilder /> */}
 
           <Route path="/QueryBuilder" element={<QueryBuilder />} />
+          <Route path="/UploadCsv" element={<UploadCsv />} />
+          <Route path="*" element={<NotFound />} />
 
         </Route>
       </Routes>

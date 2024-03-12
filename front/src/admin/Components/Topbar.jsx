@@ -8,8 +8,8 @@ import Person from '../../assets/person.jpg';
 import Logout from './Logout';
 
 function Topbar() {
-    const [dashboardOpen, setDashboardOpen] = useState(true);
-    const [bootstrapOpen, setBootstrapOpen] = useState(false);
+    // const [dashboardOpen, setDashboardOpen] = useState(true);
+    const [chartsOpen, setChartsOpen] = useState(false);
     const [productsOpen, setProductsOpen] = useState(false);
     const [userName, setUserName] = useState('');
     const [tables, setTables] = useState([]);
@@ -69,7 +69,7 @@ function Topbar() {
     return (
         <div className="col-auto col-md-3 col-xl-2 px-sm-2 px-0 bg-dark">
             <div className="d-flex flex-column align-items-center align-items-sm-start px-3 pt-2 text-white min-vh-100">
-                <a href="/" className="d-flex align-items-center pb-3 mb-md-0 me-md-auto text-white text-decoration-none">
+                <a href="#" className="d-flex align-items-center pb-3 mb-md-0 me-md-auto text-white text-decoration-none">
                     <span className="fs-5 d-none d-sm-inline pt-5">FORWARD AI+</span>
                 </a>
                 <ul className="nav nav-pills flex-column mb-sm-auto mb-0 align-items-center align-items-sm-start" id="menu">
@@ -77,24 +77,24 @@ function Topbar() {
                         <a href="/dashboard" className="nav-link align-middle px-0">
                             <i className="fa bi-house"></i>
                             <FontAwesomeIcon icon={["fa", "bars"]} />
-                            <span className="ms-1 d-none d-sm-inline">Home</span>
+                            <span className="ms-1 d-none d-sm-inline">Dashboard</span>
                         </a>
                     </li>
-                    <li>
-                        <a href="#" onClick={() => setDashboardOpen(!dashboardOpen)} className="text-white nav-link px-0 align-middle">
+                    {/* <li>
+                        <a href="/dashboard" onClick={() => setDashboardOpen(!dashboardOpen)} className="text-white nav-link px-0 align-middle">
                             <i className="fs-4 bi-speedometer2"></i> <span className="ms-1 d-none d-sm-inline">Dashboard</span>
                         </a>
                         <Collapse in={dashboardOpen}>
                             <ul className="collapse show nav flex-column ms-1" id="submenu1">
-                                {/* <li className="w-100">
+                                <li className="w-100">
                                     <a href="#" className="nav-link px-0"> <span className="d-none d-sm-inline">Item</span> 1 </a>
                                 </li>
                                 <li>
                                     <a href="#" className="nav-link px-0"> <span className="d-none d-sm-inline">Item</span> 2 </a>
-                                </li> */}
+                                </li>
                             </ul>
                         </Collapse>
-                    </li>
+                    </li> */}
                     <li>
                         <a href="#" className="text-white nav-link px-0 align-middle">
                             <i className="fs-4 bi-table"></i> <span className="ms-1 d-none d-sm-inline">Analysis</span>
@@ -106,10 +106,10 @@ function Topbar() {
                         </a>
                     </li>
                     <li>
-                        <a href="#" onClick={() => setBootstrapOpen(!bootstrapOpen)} aria-expanded={bootstrapOpen} className="text-white nav-link px-0 align-middle ">
+                        <a href="#" onClick={() => setChartsOpen(!chartsOpen)} aria-expanded={chartsOpen} className="text-white nav-link px-0 align-middle ">
                             <i className="fs-4 bi-bootstrap"></i> <span className="ms-1 d-none d-sm-inline">Charts</span>
                         </a>
-                        <Collapse in={bootstrapOpen}>
+                        <Collapse in={chartsOpen}>
                             <ul className="collapse nav flex-column ms-1" id="submenu2">
                                 <li className="w-100">
                                     <a href="#" className="nav-link px-0"> <span className="d-none d-sm-inline">Item</span> 1</a>

@@ -9,12 +9,13 @@ const cors = require('cors');
 const crypto = require('crypto');
 const session = require('express-session');
 const nodemailer = require('nodemailer');
-const { OAuth2Client } = require('google-auth-library');
+// const { OAuth2Client } = require('google-auth-library');
 const multer = require('multer');
 const util = require('util');
 const fs = require('fs');
 const cookieParser = require('cookie-parser');
 const unlinkAsync = util.promisify(fs.unlink);
+const csvParser = require('csv-parser');
 
 // const app = express();
 const upload = multer({ dest: 'uploads/' });
@@ -39,26 +40,26 @@ const dbConfig = {
 const pool = mysql.createPool(config);
 const pool2 = mysql.createPool(dbConfig);
 
-const CLIENT_ID = process.env.CLIENT_ID;
-const CLIENT_SECRET = process.env.CLIENT_SECRET;
-const REDIRECT_URI = process.env.REDIRECT_URI;
-const REFRESH_TOKEN = process.env.REFRESH_TOKEN;
+// const CLIENT_ID = process.env.CLIENT_ID;
+// const CLIENT_SECRET = process.env.CLIENT_SECRET;
+// const REDIRECT_URI = process.env.REDIRECT_URI;
+// const REFRESH_TOKEN = process.env.REFRESH_TOKEN;
 
-const myOAuth2Client = new OAuth2Client(CLIENT_ID, CLIENT_SECRET, REDIRECT_URI);
+// const myOAuth2Client = new OAuth2Client(CLIENT_ID, CLIENT_SECRET, REDIRECT_URI);
 
-myOAuth2Client.setCredentials({ refresh_token: REFRESH_TOKEN });
+// myOAuth2Client.setCredentials({ refresh_token: REFRESH_TOKEN });
 
-const transporter = nodemailer.createTransport({
-  service: 'gmail',
-  auth: {
-    type: 'OAuth2',
-    user: process.env.EMAIL_USER,
-    clientId: CLIENT_ID,
-    clientSecret: CLIENT_SECRET,
-    refreshToken: REFRESH_TOKEN,
-    accessToken: myOAuth2Client.getAccessToken(),
-  },
-});
+// const transporter = nodemailer.createTransport({
+//   service: 'gmail',
+//   auth: {
+//     type: 'OAuth2',
+//     user: process.env.EMAIL_USER,
+//     clientId: CLIENT_ID,
+//     clientSecret: CLIENT_SECRET,
+//     refreshToken: REFRESH_TOKEN,
+//     accessToken: myOAuth2Client.getAccessToken(),
+//   },
+// });
 
 // Function to create a database
 async function createDatabase(config) {
@@ -349,16 +350,27 @@ app.post('/upload', upload.single('sqlFile'), async (req, res) => {
     }
 
     try {
-      const match = data.match(/CREATE DATABASE\s+IF NOT EXISTS\s+`?(\w+)`?/i);
+      let match = data.match(/CREATE DATABASE\s+IF NOT EXISTS\s+`?(\w+)`?/i);
+      let databaseName;
+
       if (!match || !match[1]) {
-        await unlinkAsync(req.file.path); // Delete the uploaded file
-        return res.status(400).send('Database name not found in the SQL script');
+        match = data.match(/USE\s+`?(\w+)`?/i);
+        if (!match || !match[1]) {
+          await unlinkAsync(req.file.path);
+          return res.status(400).send('Database name not found in the SQL script');
+        }
+        databaseName = match[1];
+      } else {
+        databaseName = match[1];
       }
 
-      const databaseName = match[1];
       const connection1 = await pool2.getConnection();
 
       try {
+        // Check if the database already exists
+        const [rows] = await connection1.query(`SHOW DATABASES LIKE '${databaseName}'`);
+        const databaseExists = rows.length > 0;
+
         const sqlStatements = data.split(';').filter(statement => statement.trim() !== '');
 
         for (const statement of sqlStatements) {
@@ -370,11 +382,13 @@ app.post('/upload', upload.single('sqlFile'), async (req, res) => {
         return res.status(200).send('SQL script executed successfully');
       } catch (error) {
         console.error('Error executing SQL statement:', error);
-        // Drop the database if an error occurs
-        // await connection1.query(`DROP DATABASE IF EXISTS ${mysql.escapeId(databaseName)}`);
-        // console.log(`Database ${databaseName} dropped due to error.`);
-        await connection1.release();
-        await unlinkAsync(req.file.path); // Ensure file is deleted even in case of error
+        // Only drop the database if it didn't exist before the file upload
+        if (!databaseExists) {
+          await connection1.query(`DROP DATABASE IF EXISTS ${mysql.escapeId(databaseName)}`);
+          console.log(`Database ${databaseName} dropped due to error.`);
+        }
+        connection1.release();
+        await unlinkAsync(req.file.path);
         return res.status(500).send('Error executing SQL statement, database dropped');
       }
     } catch (error) {
@@ -382,6 +396,58 @@ app.post('/upload', upload.single('sqlFile'), async (req, res) => {
       return res.status(500).send('Error processing file');
     }
   });
+});
+
+
+app.post('/upload-csv', upload.single('csvFile'), async (req, res) => {
+
+  const pool4 = mysql.createPool({
+    connectionLimit: 100,
+    host: process.env.DB_HOST,
+    user: process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
+    database: 'classicmodels',
+  });
+
+  const csvFilePath = req.file.path;
+
+    let connection;
+
+    try {
+        const data = await fs.promises.readFile(csvFilePath, 'utf8');
+        const tableName = req.file.originalname.replace('.csv', '').replace(/[^a-zA-Z0-9_]/g, ''); // Remove special characters from table name
+        const columns = data.split('\n')[0].split(',').map(column => column.trim()); // Trim whitespace from column names
+
+        connection = await pool4.getConnection();
+
+        // Create table with columns
+        const createTableQuery = `CREATE TABLE IF NOT EXISTS ${tableName} (${columns.map(column => `\`${column}\` VARCHAR(255)`).join(', ')})`;
+        await connection.query(createTableQuery);
+
+        console.log('Table created successfully');
+
+        // Process CSV data and insert into database
+        const stream = fs.createReadStream(csvFilePath).pipe(csvParser());
+        for await (const row of stream) {
+            const insertQuery = `INSERT INTO ${tableName} (${columns.map(column => `\`${column}\``).join(', ')}) VALUES (${columns.map(() => '?').join(', ')})`;
+            const values = columns.map(column => row[column]);
+            await connection.query(insertQuery, values);
+        }
+
+        console.log('CSV file successfully processed');
+
+        fs.unlinkSync(csvFilePath); // Delete uploaded file
+        return res.send('CSV file uploaded and processed successfully');
+
+    } catch (err) {
+        console.error('Error uploading file:', err);
+        await fs.promises.unlink(csvFilePath); // Ensure file is deleted even in case of error
+        return res.status(500).send('Error uploading file');
+    } finally {
+        if (connection) {
+            connection.release();
+        }
+    }
 });
 
 // Route to get the username of the logged-in user
@@ -455,7 +521,7 @@ app.get('/tables', async (req, res) => {
     //   tablesWithRecords.push({ table, records: tableRows });
     // }
 
-    const data = res.status(200).json(tables);
+    res.status(200).json(tables);
     // console.log(data);
   } catch (error) {
     console.error('Error fetching tables:', error);
