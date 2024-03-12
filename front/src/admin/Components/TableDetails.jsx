@@ -1,13 +1,17 @@
-import React, { useEffect, useState } from 'react';
-import Topbar from './Topbar';
+import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
+import Topbar from './Topbar'; // Import Topbar component
+import { Modal, Button, Form } from 'react-bootstrap';
 
-function TableDetails({ match }) {
+function TableDetails() {
   const { tableName } = useParams();
   const [tableData, setTableData] = useState(null);
   const [error, setError] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editedRecord, setEditedRecord] = useState(null);
+  const [editColumns, setEditColumns] = useState([]);
 
   useEffect(() => {
     const fetchTableData = async () => {
@@ -29,22 +33,107 @@ function TableDetails({ match }) {
 
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentItems = tableData ? tableData.records.slice(indexOfFirstItem, indexOfLastItem) : [];
+  const currentItems = tableData && tableData.records ? tableData.records.slice(indexOfFirstItem, indexOfLastItem) : [];
 
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
+
+  const handleEdit = (record) => {
+    setEditedRecord(record);
+    setIsEditing(true);
+    // Store columns being edited
+    setEditColumns(Object.keys(record));
+  };
+
+  // Get the first record in the table data and use its keys to identify the first column
+  let uniqueIdentifier;
+  if (tableData && tableData.records && tableData.records[0]) {
+    uniqueIdentifier = Object.keys(tableData.records[0])[0] || 'id'; // Use 'id' as a fallback identifier
+  }
+
+  const handleUpdate = async () => {
+    try {
+      // Create conditions object with the unique identifier
+      const conditions = {};
+      conditions[uniqueIdentifier] = editedRecord[uniqueIdentifier];
+
+      // Prepare updated columns object
+      const updatedColumns = editColumns.reduce((acc, column) => {
+        acc[column] = editedRecord[column];
+        return acc;
+      }, {});
+
+      // Send the request to update the record
+      const response = await fetch(`/tables/${tableName}/records`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ conditions, updatedColumns }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to update record');
+      }
+
+      const updatedData = await response.json();
+      setTableData(updatedData);
+
+      setIsEditing(false);
+      setEditedRecord(null);
+      setEditColumns([]);
+
+    } catch (error) {
+      console.error('Error updating record:', error);
+      setError(error.message);
+    }
+  };
+
+
+  const handleClose = () => {
+    setIsEditing(false);
+    setEditedRecord(null);
+    setEditColumns([]);
+  };
 
   return (
     <div className="container-fluid">
       <div className="row flex-nowrap">
         <Topbar />
         <div className="col py-3 pt-5 p col-lg-4">
-          {error && <div className="alert alert-danger">{error}</div>} {/* Display error message */}
+          {error && <div className="alert alert-danger">{error}</div>}
           {tableData && tableData.table && (
             <>
               <h2 className='text-dark text-uppercase'>{tableData.table}</h2>
-              {tableData.records.length === 0 ? (
-                <div className="alert alert-info">No records found</div>
-              ) : (
+              {isEditing && (
+                <Modal show={isEditing} onHide={handleClose}>
+                  <Modal.Header closeButton>
+                    <Modal.Title>Edit Record</Modal.Title>
+                  </Modal.Header>
+                  <Modal.Body>
+                    <Form>
+                      {editColumns.map((key, index) => (
+                        <Form.Group key={index} controlId={`edit-${key}`}>
+                          <Form.Label>{key}</Form.Label>
+                          <Form.Control
+                            type="text"
+                            value={editedRecord[key]}
+                            onChange={(e) => setEditedRecord({ ...editedRecord, [key]: e.target.value })}
+                          />
+                        </Form.Group>
+                      ))}
+                    </Form>
+                  </Modal.Body>
+                  <Modal.Footer>
+                    <Button variant="secondary" onClick={handleClose}>
+                      Close
+                    </Button>
+                    <Button variant="primary" onClick={handleUpdate}>
+                      Update
+                    </Button>
+                  </Modal.Footer>
+                </Modal>
+              )}
+              {tableData.records && tableData.records.length > 0 ? (
                 <div className="table table-sm">
                   <table className="table table-bordered">
                     <thead className='text-uppercase'>
@@ -52,6 +141,7 @@ function TableDetails({ match }) {
                         {Object.keys(tableData.records[0]).map((key, index) => (
                           <th key={index}>{key}</th>
                         ))}
+                        <th>Edit</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -60,13 +150,18 @@ function TableDetails({ match }) {
                           {Object.values(record).map((value, index) => (
                             <td key={index}>{value}</td>
                           ))}
+                          <td>
+                            <button onClick={() => handleEdit(record)} className="btn btn-primary">Edit</button>
+                          </td>
                         </tr>
                       ))}
                     </tbody>
                   </table>
                 </div>
+              ) : (
+                <div className="alert alert-info">No records found</div>
               )}
-              {tableData.records.length > itemsPerPage && (
+              {tableData.records && tableData.records.length > itemsPerPage && (
                 <nav>
                   <ul className="pagination">
                     {Array.from({ length: Math.ceil(tableData.records.length / itemsPerPage) }, (_, i) => i + 1).map((number) => (

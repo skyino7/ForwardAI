@@ -607,6 +607,68 @@ app.get('/records/:tableName', async (req, res) => {
 
 });
 
+app.put('/tables/:tableName/records', async (req, res) => {
+
+  const dbConfig = {
+    connectionLimit: 10,
+    host: process.env.DB_HOST,
+    user: process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
+    database: 'classicmodels',
+  };
+
+  try {
+    const pool = mysql.createPool(dbConfig);
+    const connection = await pool.getConnection();
+
+    const tableName = req.params?.tableName;
+    const { conditions, updatedColumns } = req.body;
+
+    // Check if conditions and updated columns are provided
+    if (!conditions || !updatedColumns) {
+      res.status(400).json({ error: 'Missing conditions or updatedColumns' });
+      return;
+    }
+
+    // SET clause for updating columns
+    const setClause = Object.keys(updatedColumns)
+      .map((column) => `\`${column}\` = ?`)
+      .join(', ');
+
+    // WHERE clause for conditions
+    const whereClause = Object.keys(conditions)
+      .map((column) => `\`${column}\` = ?`)
+      .join(' AND ');
+
+    // SQL query with placeholders
+    const sql = `UPDATE \`${tableName}\` SET ${setClause} WHERE ${whereClause}`;
+
+    // Combine values for SET clause and WHERE clause
+    const values = [...Object.values(updatedColumns), ...Object.values(conditions)];
+
+    // console.log("Generated SQL query:", sql);
+    // console.log("Values:", values);
+
+    // Execute query
+    connection.query(sql, values, (err, result) => {
+      connection.release(); // Release the connection back to the pool
+
+      if (err) {
+        console.error('Error updating record:', err);
+        res.status(500).json({ error: 'Failed to update record', details: err.message });
+        return;
+      }
+
+      console.log('Record updated successfully');
+      res.json({ message: 'Record updated successfully' });
+
+    });
+  } catch (error) {
+    console.error('Error connecting to database:', error);
+    res.status(500).json({ error: 'Failed to connect to database', details: error.message });
+  }
+});
+
 app.post('/records', async (req, res) => {
 
   const dbConfig = {
@@ -630,6 +692,7 @@ app.post('/records', async (req, res) => {
     const columns = fields.map(field => field.name);
 
     res.json({ records: rows, columns });
+
   } catch (error) {
     console.error('Error fetching records:', error);
     res.status(500).json({ error: 'Query syntax error. Please check your query and try again.' });
