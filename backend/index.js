@@ -9,13 +9,15 @@ const cors = require('cors');
 const crypto = require('crypto');
 const session = require('express-session');
 const nodemailer = require('nodemailer');
-// const { OAuth2Client } = require('google-auth-library');
+const { OAuth2Client } = require('google-auth-library');
 const multer = require('multer');
 const util = require('util');
 const fs = require('fs');
 const cookieParser = require('cookie-parser');
 const unlinkAsync = util.promisify(fs.unlink);
 const csvParser = require('csv-parser');
+const OpenAI = require('openai');
+const nlpLibrary = require('natural');
 
 // const app = express();
 const upload = multer({ dest: 'uploads/' });
@@ -40,26 +42,30 @@ const dbConfig = {
 const pool = mysql.createPool(config);
 const pool2 = mysql.createPool(dbConfig);
 
-// const CLIENT_ID = process.env.CLIENT_ID;
-// const CLIENT_SECRET = process.env.CLIENT_SECRET;
-// const REDIRECT_URI = process.env.REDIRECT_URI;
-// const REFRESH_TOKEN = process.env.REFRESH_TOKEN;
+const CLIENT_ID = process.env.CLIENT_ID;
+const CLIENT_SECRET = process.env.CLIENT_SECRET;
+const REDIRECT_URI = process.env.REDIRECT_URI;
+const REFRESH_TOKEN = process.env.REFRESH_TOKEN;
 
-// const myOAuth2Client = new OAuth2Client(CLIENT_ID, CLIENT_SECRET, REDIRECT_URI);
+const myOAuth2Client = new OAuth2Client(CLIENT_ID, CLIENT_SECRET, REDIRECT_URI);
 
-// myOAuth2Client.setCredentials({ refresh_token: REFRESH_TOKEN });
+myOAuth2Client.setCredentials({ refresh_token: REFRESH_TOKEN });
 
-// const transporter = nodemailer.createTransport({
-//   service: 'gmail',
-//   auth: {
-//     type: 'OAuth2',
-//     user: process.env.EMAIL_USER,
-//     clientId: CLIENT_ID,
-//     clientSecret: CLIENT_SECRET,
-//     refreshToken: REFRESH_TOKEN,
-//     accessToken: myOAuth2Client.getAccessToken(),
-//   },
-// });
+const transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    type: 'OAuth2',
+    user: process.env.EMAIL_USER,
+    clientId: CLIENT_ID,
+    clientSecret: CLIENT_SECRET,
+    refreshToken: REFRESH_TOKEN,
+    accessToken: myOAuth2Client.getAccessToken(),
+  },
+});
+
+const API_KEY = process.env.OPENAI_API_KEY;
+
+console.log(API_KEY);
 
 // Function to create a database
 async function createDatabase(config) {
@@ -698,6 +704,154 @@ app.post('/records', async (req, res) => {
     res.status(500).json({ error: 'Query syntax error. Please check your query and try again.' });
   }
 });
+
+const dbConfig1 = {
+  connectionLimit: 10,
+  host: process.env.DB_HOST,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: 'classicmodels',
+};
+
+const pool3 = mysql.createPool(dbConfig1);
+
+app.post('/query', async (req, res) => {
+  const { query } = req.body;
+
+  try {
+    const connection = await pool3.getConnection();
+
+    // Parse user input and generate SQL queries
+    const sqlQueries = parseAndGenerateSQL(query);
+
+    // Execute SQL queries against the database
+    const results = [];
+    for (const sqlQuery of sqlQueries) {
+      const [rows, fields] = await executeQuery(connection, sqlQuery);
+      results.push(rows);
+    }
+
+    // Send combined results to client
+    res.json(results);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Function to parse user input and generate SQL queries
+function parseAndGenerateSQL(userInput) {
+  try {
+    // Parse user input using NLP library
+    const parsedInput = parseUserInput(userInput);
+
+    // Extract keywords and entities from parsed input
+    const keywords = parsedInput.keywords;
+    const entities = parsedInput.entities;
+
+    // Ensure entities is defined and an array before filtering
+    if (Array.isArray(entities)) {
+      // Filter database entities mentioned by the user
+      const databaseEntities = entities.filter(entity => isDatabaseEntity(entity));
+
+      // Generate SQL queries based on identified entities and keywords
+      const sqlQueries = databaseEntities.map(entity => generateSQLQuery(entity, keywords));
+
+      return sqlQueries;
+    } else {
+      console.error('Entities is not an array:', entities);
+      return [];
+    }
+  } catch (error) {
+    console.error('Error parsing and generating SQL:', error);
+    return [];
+  }
+}
+
+
+// Function to parse user input using NLP library (replace with actual implementation)
+async function parseUserInput(userInput) {
+  try {
+    // Placeholder implementation
+    // Query your database schema to get the list of tables and columns
+    const tablesQuery = `SHOW TABLES`;
+    const tables = await executeQuery(tablesQuery);
+    const columns = [];
+
+    for (const table of tables) {
+      const columnsQuery = `SHOW COLUMNS FROM ${table}`;
+      const tableColumns = await executeQuery(columnsQuery);
+      columns.push(...tableColumns.map(column => column.Field));
+    }
+
+    return {
+      keywords: ['top'], // Sample keywords extracted
+      entities: [...tables, ...columns] // Combine tables and columns as entities
+    };
+  } catch (error) {
+    console.error('Error parsing user input:', error);
+    // Return default entities in case of error
+    return {
+      keywords: ['top'], // Sample keywords extracted
+      entities: ['customers'] // Sample entities extracted
+    };
+  }
+}
+
+
+// Function to generate SQL query based on user input
+function generateSQLQuery(entity, keywords) {
+  // Generate SQL query based on the identified entity and keywords
+  let sqlQuery = `SELECT * FROM ${entity}`;
+
+  // Add WHERE clause based on keywords (e.g., filtering by specific criteria)
+  if (keywords.includes('top')) {
+    sqlQuery += ' ORDER BY customer_id DESC LIMIT 10'; // Assuming customer_id is the primary key
+  } else {
+    sqlQuery += ' LIMIT 10'; // Add default behavior when no keywords are detected
+  }
+
+  return sqlQuery;
+}
+
+// Function to determine if an entity corresponds to a database entity
+async function isDatabaseEntity(entity) {
+  try {
+    // Query to check if the entity is a table name
+    const tableQuery = `SHOW TABLES LIKE '${entity}'`;
+    const tableResults = await executeQuery(tableQuery);
+
+    if (tableResults.length > 0) {
+      return true; // The entity is a table name
+    }
+
+    // Query to check if the entity is a column name in any table
+    const columnQuery = `SELECT column_name FROM information_schema.columns WHERE column_name = ?`;
+    const columnResults = await executeQuery(columnQuery, [entity]);
+
+    if (columnResults.length > 0) {
+      return true; // The entity is a column name
+    }
+
+    return false; // The entity is not found in tables or columns
+  } catch (error) {
+    console.error('Error checking database entity:', error);
+    return false; // Return false in case of error
+  }
+}
+
+// Function to execute SQL queries against the database
+function executeQuery(connection, query) {
+  return new Promise((resolve, reject) => {
+    connection.query(query, (error, results, fields) => {
+      if (error) {
+        reject(error);
+      } else {
+        resolve([results, fields]);
+      }
+    });
+  });
+}
 
 // Start the server
 app.listen(port, () => {

@@ -15,6 +15,7 @@ import QueryBuilder from "./admin/Components/QueryBuilder";
 // import { HTML5Backend } from 'react-dnd-html5-backend';
 import NotFound from "./pages/NotFound";
 import UploadCsv from "./admin/Components/UploadCsv";
+import NaturalQuery from "./admin/Components/NaturalQuery";
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -62,6 +63,7 @@ function App() {
 
           <Route path="/QueryBuilder" element={<QueryBuilder />} />
           <Route path="/UploadCsv" element={<UploadCsv />} />
+          <Route path="/NaturalQuery" element={<NaturalQuery/>} />
           <Route path="*" element={<NotFound />} />
 
         </Route>
