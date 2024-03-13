@@ -22,15 +22,23 @@ function App() {
 
   useEffect(() => {
     // Fetch authentication status when the component mounts
-    fetch('/isAuthenticated')
+    let t = localStorage.getItem('token')
+
+    fetch('/isAuthenticated',{
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer '+t,
+      },
+    })
       .then(response => {
         if (response.ok) {
-          console.log(response.json);
           return response.json();
         }
-        throw new Error('Network response was not ok.');
+        // throw new Error('Network response was not ok.');
       })
       .then(data => {
+        // console.log(data.isAuthenticated);
         setIsAuthenticated(data.isAuthenticated);
       })
       .catch(error => {
@@ -48,15 +56,21 @@ function App() {
           <Route path="/Confirmation" element={<Confirmation />} />
           <Route path="/VerificationPending" element={<VerificationPending />} />
 
-          {/* <Route path="/Dashboard" element={isAuthenticated ? <Dashboard /> : <Navigate to="/login" />} />
+          {/* {isAuthenticated ?
+            (
+            <Route path="/Dashboard" element={<Dashboard />} />)
+          : (<Route path="/login" element={<Login />} />)} */}
+
+
+          <Route path="/Dashboard" element={isAuthenticated ? <Dashboard /> : <Navigate to="/login" />} />
           <Route path="/ClientForm" element={isAuthenticated ? <ClientForm /> : <Navigate to="/login" />} />
           <Route exact path="/TableList" element={isAuthenticated ? <TableList /> : <Navigate to="/login" />} />
-          <Route path="/tables/:tableName" element={isAuthenticated ? <TableDetails /> : <Navigate to="/login" />} /> */}
+          <Route path="/tables/:tableName" element={isAuthenticated ? <TableDetails /> : <Navigate to="/login" />} />
 
-          <Route path="/Dashboard" element={<Dashboard />} />
+          {/*<Route path="/Dashboard" element={<Dashboard />} />
           <Route path="/ClientForm" element={<ClientForm />} />
           <Route exact path="/TableList" element={<TableList />} />
-          <Route path="/tables/:tableName" element={<TableDetails />} />
+        <Route path="/tables/:tableName" element={<TableDetails />} />*/}
 
 
               {/* <QueryBuilder /> */}

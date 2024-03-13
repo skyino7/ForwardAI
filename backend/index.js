@@ -65,7 +65,7 @@ const transporter = nodemailer.createTransport({
 
 const API_KEY = process.env.OPENAI_API_KEY;
 
-console.log(API_KEY);
+// console.log(API_KEY);
 
 // Function to create a database
 async function createDatabase(config) {
@@ -245,23 +245,68 @@ async function sendVerificationEmail(email, token, name) {
   }
 }
 
+
+app.post('/isAuthenticated', async (req, res) => {
+  try {
+
+    // Extract token from URL parameter
+    const authHeader =req.headers['authorization'];
+    const token = authHeader && authHeader.split(' ')[1];
+    console.log(token);
+
+    let auth = {
+      isAuthenticated : false
+    }
+    // If the token is present
+    if(token){
+
+      // Verify the token using jwt.verify method
+      jwt.verify(token,  process.env.JWT_SECRET, (err, decoded)=>{
+
+        if(err){
+          return res.status(401).json(auth);
+        }
+        console.log(decoded);
+        auth.isAuthenticated = false;
+        return res.status(200).json(auth);
+      });
+    }else{
+      return res.status(401).json(auth);
+    }
+
+  }catch(e){
+    console.log(e);
+  }
+})
+
 // Middleware to check if user is authenticated
 function isAuthenticated(req, res, next) {
-  // Check if user session exists
-  if (req.session.authenticated) {
-    // User is authenticated, proceed to next middleware or route handler
-    next();
-  } else {
-    // User is not authenticated, redirect to login page
-    res.status(401).send('Unauthorized');
-    // res.redirect('/dashboard');
-  }
 
-  // if (req.session.authenticated) {
-  //   return res.json({ isAuthenticated: true });
-  // } else {
-  //   return res.json({ isAuthenticated: false });
-  // }
+
+    // Extract token from URL parameter
+    const authHeader =req.headers['authorization'];
+    const token = authHeader && authHeader.split(' ')[1];
+    console.log(token);
+
+    let auth = {
+      isAuthenticated : false
+    }
+    // If the token is present
+    if(token){
+
+      // Verify the token using jwt.verify method
+      jwt.verify(token,  process.env.JWT_SECRET, (err, decoded)=>{
+
+        if(err){
+          return res.status(401).json(auth);
+        }
+        console.log(decoded);
+        next();
+      });
+    }else{
+      return res.status(401).json(auth);
+    }
+
 }
 
 // Route for user login
@@ -690,19 +735,27 @@ app.post('/records', async (req, res) => {
   const { query } = req.body;
 
   try {
-    const connection = await pool.getConnection();
-    const [rows, fields] = await connection.query(query);
-    connection.release();
+    const connection = await pool3.getConnection();
 
-    // Extract column names
-    const columns = fields.map(field => field.name);
+    // Parse user input and generate SQL queries
+    const parsedInput = await parseUserInput(query);
+    const sqlQueries = parseAndGenerateSQL(parsedInput);
 
-    res.json({ records: rows, columns });
+    // Execute SQL queries against the database
+    const results = [];
+    for (const sqlQuery of sqlQueries) {
+      const [rows, fields] = await executeQuery(connection, sqlQuery);
+      results.push(rows);
+      console.log(rows);
+    }
 
+    // Send combined results to client
+    res.json(results);
   } catch (error) {
-    console.error('Error fetching records:', error);
-    res.status(500).json({ error: 'Query syntax error. Please check your query and try again.' });
+    console.error(error);
+    res.status(500).json({ error: 'Internal server error' });
   }
+
 });
 
 const dbConfig1 = {
@@ -716,19 +769,22 @@ const dbConfig1 = {
 const pool3 = mysql.createPool(dbConfig1);
 
 app.post('/query', async (req, res) => {
+
   const { query } = req.body;
 
   try {
     const connection = await pool3.getConnection();
 
     // Parse user input and generate SQL queries
-    const sqlQueries = parseAndGenerateSQL(query);
+    const parsedInput = await parseUserInput(query);
+    const sqlQueries = parseAndGenerateSQL(parsedInput);
 
     // Execute SQL queries against the database
     const results = [];
     for (const sqlQuery of sqlQueries) {
       const [rows, fields] = await executeQuery(connection, sqlQuery);
       results.push(rows);
+      console.log(rows);
     }
 
     // Send combined results to client
@@ -737,6 +793,7 @@ app.post('/query', async (req, res) => {
     console.error(error);
     res.status(500).json({ error: 'Internal server error' });
   }
+
 });
 
 // Function to parse user input and generate SQL queries
@@ -744,6 +801,7 @@ function parseAndGenerateSQL(userInput) {
   try {
     // Parse user input using NLP library
     const parsedInput = parseUserInput(userInput);
+    console.log(parsedInput); // Log parsedInput to check its structure
 
     // Extract keywords and entities from parsed input
     const keywords = parsedInput.keywords;
@@ -768,25 +826,28 @@ function parseAndGenerateSQL(userInput) {
   }
 }
 
-
 // Function to parse user input using NLP library (replace with actual implementation)
 async function parseUserInput(userInput) {
   try {
     // Placeholder implementation
     // Query your database schema to get the list of tables and columns
     const tablesQuery = `SHOW TABLES`;
-    const tables = await executeQuery(tablesQuery);
+    const tablesResult = await executeQuery(tablesQuery);
+    const tables = tablesResult[0].map(table => table[`Tables_in_classicmodels`]); // Update database name here
+
     const columns = [];
 
     for (const table of tables) {
       const columnsQuery = `SHOW COLUMNS FROM ${table}`;
-      const tableColumns = await executeQuery(columnsQuery);
-      columns.push(...tableColumns.map(column => column.Field));
+      const tableColumnsResult = await executeQuery(columnsQuery);
+      const tableColumns = tableColumnsResult[0].map(column => column.Field);
+      columns.push(...tableColumns);
     }
 
+    const entities = [...tables, ...columns]; // Combine tables and columns as entities
     return {
-      keywords: ['top'], // Sample keywords extracted
-      entities: [...tables, ...columns] // Combine tables and columns as entities
+      keywords: ['top', 'find'], // Sample keywords extracted
+      entities: entities // Ensure entities is properly populated
     };
   } catch (error) {
     console.error('Error parsing user input:', error);
@@ -797,6 +858,7 @@ async function parseUserInput(userInput) {
     };
   }
 }
+
 
 
 // Function to generate SQL query based on user input
@@ -829,6 +891,15 @@ async function isDatabaseEntity(entity) {
     const columnQuery = `SELECT column_name FROM information_schema.columns WHERE column_name = ?`;
     const columnResults = await executeQuery(columnQuery, [entity]);
 
+    console.log(columnResults); // Debug: log the column results for debugging purposes
+    console.log(columnResults.length); // Debug: log the length of the column results for debugging purposes
+    console.log(columnResults[0]); // Debug: log the first column result for debugging purposes
+    console.log(columnResults[0].column_name); // Debug: log the column name for debugging purposes
+    console.log(columnResults[0].column_name === entity); // Debug: log the comparison between the column name and the entity for debugging purposes
+    console.log(columnResults[0].column_name === entity ? true : false); // Debug: log the comparison result for debugging purposes
+    console.log(columnResults[0].column_name === entity ? true : false ? true : false); // Debug: log the comparison result for debugging purposes
+    console.log(columnResults[0].column_name === entity ? true : false ? true : false ? true : false); // Debug: log the comparison result for debugging purposes
+
     if (columnResults.length > 0) {
       return true; // The entity is a column name
     }
@@ -841,16 +912,54 @@ async function isDatabaseEntity(entity) {
 }
 
 // Function to execute SQL queries against the database
-function executeQuery(connection, query) {
-  return new Promise((resolve, reject) => {
-    connection.query(query, (error, results, fields) => {
-      if (error) {
-        reject(error);
-      } else {
-        resolve([results, fields]);
-      }
-    });
-  });
+// function executeQuery(connection, query, values = []) {
+//   return new Promise((resolve, reject) => {
+//     connection.query(query, values)
+//       .then(([results, fields]) => {
+//         resolve([results, fields]);
+//       })
+//       .catch(error => {
+//         reject(error);
+//       });
+//   });
+// }
+
+// Function to execute SQL queries
+async function executeQuery(query) {
+  try {
+    // Placeholder implementation to execute query on database
+    // Replace this with your actual database connection and query execution logic
+    const connection = await establishDatabaseConnection();
+    const result = await connection.query(query); // Ensure connection object has query function
+    return result;
+  } catch (error) {
+    throw error;
+  }
+}
+
+// Function to establish database connection (replace with actual implementation)
+async function establishDatabaseConnection() {
+  try {
+    // Define your database connection configuration
+    const connectionConfig = {
+      connectionLimit: 10,
+      host: process.env.DB_HOST,
+      user: process.env.DB_USER,
+      password: process.env.DB_PASSWORD,
+      database: 'classicmodels',
+    };
+
+    // Create a connection pool using mysql2
+    const pool = await mysql.createPool(connectionConfig);
+
+    // Get a connection from the pool
+    const connection = await pool.getConnection();
+
+    return connection;
+  } catch (error) {
+    console.error('Error establishing database connection:', error);
+    throw error;
+  }
 }
 
 // Start the server

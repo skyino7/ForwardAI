@@ -15,7 +15,7 @@ function Topbar() {
     const [tables, setTables] = useState([]);
 
     const logout = () => {
-        console.log('Logging out...');
+        localStorage.removeItem('token');
         window.location.href = '/login';
     };
 
