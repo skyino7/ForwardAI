@@ -3,6 +3,62 @@ import { useParams } from 'react-router-dom';
 import Topbar from './Topbar'; // Import Topbar component
 import { Modal, Button, Form } from 'react-bootstrap';
 
+const Pagination = ({ currentPage, totalPages, paginate }) => {
+  const adjacentPages = 2; // Number of adjacent pages to show
+  const pageNumbers = [];
+
+  // Function to add page numbers to the list
+  const addPageNumbers = (start, end) => {
+    for (let i = start; i <= end; i++) {
+      pageNumbers.push(i);
+    }
+  };
+
+  // If total pages are less than or equal to 10, display all pages
+  if (totalPages <= 10) {
+    addPageNumbers(1, totalPages);
+  } else {
+    // If current page is less than or equal to adjacentPages + 1
+    if (currentPage <= adjacentPages + 1) {
+      addPageNumbers(1, 1 + 2 * adjacentPages);
+    } else if (currentPage >= totalPages - adjacentPages) {
+      // If current page is greater than or equal to totalPages - adjacentPages
+      addPageNumbers(totalPages - 2 * adjacentPages, totalPages);
+    } else {
+      // Otherwise, show currentPage and adjacent pages
+      addPageNumbers(currentPage - adjacentPages, currentPage + adjacentPages);
+    }
+  }
+
+  return (
+    <nav>
+      <ul className="pagination">
+        {currentPage !== 1 && (
+          <li className="page-item">
+            <button onClick={() => paginate(currentPage - 1)} className="page-link">
+              &laquo; Previous
+            </button>
+          </li>
+        )}
+        {pageNumbers.map(number => (
+          <li key={number} className={`page-item ${currentPage === number ? 'active' : ''}`}>
+            <button onClick={() => paginate(number)} className="page-link">
+              {number}
+            </button>
+          </li>
+        ))}
+        {currentPage !== totalPages && (
+          <li className="page-item">
+            <button onClick={() => paginate(currentPage + 1)} className="page-link">
+              Next &raquo;
+            </button>
+          </li>
+        )}
+      </ul>
+    </nav>
+  );
+};
+
 function TableDetails() {
   const { tableName } = useParams();
   const [tableData, setTableData] = useState(null);
@@ -12,6 +68,7 @@ function TableDetails() {
   const [isEditing, setIsEditing] = useState(false);
   const [editedRecord, setEditedRecord] = useState(null);
   const [editColumns, setEditColumns] = useState([]);
+  const [totalPages, setTotalPages] = useState(1);
 
   useEffect(() => {
     const fetchTableData = async () => {
@@ -30,6 +87,12 @@ function TableDetails() {
 
     fetchTableData();
   }, [tableName]);
+
+  useEffect(() => {
+    if (tableData && tableData.records) {
+      setTotalPages(Math.ceil(tableData.records.length / itemsPerPage));
+    }
+  }, [tableData, itemsPerPage]);
 
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
@@ -162,17 +225,7 @@ function TableDetails() {
                 <div className="alert alert-info">No records found</div>
               )}
               {tableData.records && tableData.records.length > itemsPerPage && (
-                <nav>
-                  <ul className="pagination">
-                    {Array.from({ length: Math.ceil(tableData.records.length / itemsPerPage) }, (_, i) => i + 1).map((number) => (
-                      <li key={number} className="page-item">
-                        <button onClick={() => paginate(number)} className="page-link">
-                          {number}
-                        </button>
-                      </li>
-                    ))}
-                  </ul>
-                </nav>
+                <Pagination currentPage={currentPage} totalPages={totalPages} paginate={paginate} />
               )}
             </>
           )}

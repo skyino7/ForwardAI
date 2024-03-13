@@ -144,105 +144,125 @@ const QueryBuilder = () => {
     setGroupRule(e.target.value);
   };
 
-  // Get current records
   const indexOfLastRecord = currentPage * recordsPerPage;
   const indexOfFirstRecord = indexOfLastRecord - recordsPerPage;
   const currentRecords = records.slice(indexOfFirstRecord, indexOfLastRecord);
 
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
+  const totalPages = Math.ceil(records.length / recordsPerPage);
+  const maxPagesToShow = 10;
+
+  // Calculate the range of pages to show
+  let startPage, endPage;
+  if (totalPages <= maxPagesToShow) {
+    startPage = 1;
+    endPage = totalPages;
+  } else {
+    if (currentPage <= Math.floor(maxPagesToShow / 2)) {
+      startPage = 1;
+      endPage = maxPagesToShow;
+    } else if (currentPage + Math.floor(maxPagesToShow / 2) >= totalPages) {
+      startPage = totalPages - maxPagesToShow + 1;
+      endPage = totalPages;
+    } else {
+      startPage = currentPage - Math.floor(maxPagesToShow / 2);
+      endPage = currentPage + Math.floor(maxPagesToShow / 2);
+    }
+  }
+
   return (
     <DndProvider backend={HTML5Backend}>
       <div className="container-fluid">
         <div className="row flex-nowrap">
-        <Topbar/>
-      <div className='col py-3 px-5 pt-5 p col-lg-10 my-5'>
-        <h1 className='mb-4'>Query Builder</h1>
-        <h3 className='mb-4 shadow-sm p-3 mb-5 bg-body rounded'>Tables In the Database</h3>
-        <div className="row mb-4">
-        {tables.length === 0 && <p>No Tables found</p>}
-          {tables.map(table => (
-            <div key={table} className="col-lg-3 col-md-4 text-capitalize">
-              <TableItem table={table} onDrop={handleDropItem} />
+          <Topbar />
+          <div className='col py-3 px-5 pt-5 p col-lg-10 my-5'>
+            <h1 className='mb-4'>Query Builder</h1>
+            <h3 className='mb-4 shadow-sm p-3 mb-5 bg-body rounded'>Tables In the Database</h3>
+            <div className="row mb-4">
+              {tables.length === 0 && <p>No Tables found</p>}
+              {tables.map(table => (
+                <div key={table} className="col-lg-3 col-md-4 text-capitalize">
+                  <TableItem table={table} onDrop={handleDropItem} />
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
-        <div className="mb-4">
-          <textarea
-            value={query}
-            onChange={handleInputChange}
-            className="form-control"
-            placeholder="Enter your query here"
-            rows={4}
-          />
-          {error && <div className="text-danger mt-2">{error}</div>}
-        </div>
-        <div className="mb-4">
-          <label htmlFor="searchRule">Search Rule:</label>
-          <input
-            type="text"
-            id="searchRule"
-            value={searchRule}
-            onChange={handleSearchRuleChange}
-            className="form-control"
-            placeholder="Enter search rule"
-          />
-        </div>
-        <div className="mb-4">
-          <label htmlFor="groupRule">Group Rule:</label>
-          <input
-            type="text"
-            id="groupRule"
-            value={groupRule}
-            onChange={handleGroupRuleChange}
-            className="form-control"
-            placeholder="Enter group rule"
-          />
-        </div>
-        <div className="mb-4">
-          <button onClick={handleRunQuery} className="btn btn-primary">Run Query</button>
-        </div>
-        <div>
-          <h2 className='text-dark mb-3'>Records</h2>
-          {records.length === 0 && <p>No records found</p>}
-          {records.length > 0 && (
-            <table className="table">
-              <thead>
-                <tr>
-                  {columns.map(column => (
-                    <th key={column}>{column}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {currentRecords.map((record, index) => (
-                  <tr key={index}>
-                    {columns.map(column => (
-                      <td key={column}>{record[column]}</td>
+            <div className="mb-4">
+              <textarea
+                value={query}
+                onChange={handleInputChange}
+                className="form-control"
+                placeholder="Enter your query here"
+                rows={4}
+              />
+              {error && <div className="text-danger mt-2">{error}</div>}
+            </div>
+            <div className="mb-4">
+              <label htmlFor="searchRule">Search Rule:</label>
+              <input
+                type="text"
+                id="searchRule"
+                value={searchRule}
+                onChange={handleSearchRuleChange}
+                className="form-control"
+                placeholder="Enter search rule"
+              />
+            </div>
+            <div className="mb-4">
+              <label htmlFor="groupRule">Group Rule:</label>
+              <input
+                type="text"
+                id="groupRule"
+                value={groupRule}
+                onChange={handleGroupRuleChange}
+                className="form-control"
+                placeholder="Enter group rule"
+              />
+            </div>
+            <div className="mb-4">
+              <button onClick={handleRunQuery} className="btn btn-primary">Run Query</button>
+            </div>
+            <div>
+              <h2 className='text-dark mb-3'>Records</h2>
+              {records.length === 0 && <p>No records found</p>}
+              {records.length > 0 && (
+                <table className="table">
+                  <thead>
+                    <tr>
+                      {columns.map(column => (
+                        <th key={column}>{column}</th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {currentRecords.map((record, index) => (
+                      <tr key={index}>
+                        {columns.map(column => (
+                          <td key={column}>{record[column]}</td>
+                        ))}
+                      </tr>
                     ))}
-                  </tr>
+                  </tbody>
+                </table>
+              )}
+            </div>
+            <nav className="mt-4">
+              <ul className="pagination justify-content-center">
+                <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
+                  <button onClick={() => paginate(currentPage - 1)} className="page-link">Previous</button>
+                </li>
+                {[...Array(endPage - startPage + 1).keys()].map(pageNumber => (
+                  <li key={startPage + pageNumber} className={`page-item ${currentPage === startPage + pageNumber ? 'active' : ''}`}>
+                    <button onClick={() => paginate(startPage + pageNumber)} className="page-link">{startPage + pageNumber}</button>
+                  </li>
                 ))}
-              </tbody>
-            </table>
-          )}
+                <li className={`page-item ${currentPage === totalPages ? 'disabled' : ''}`}>
+                  <button onClick={() => paginate(currentPage + 1)} className="page-link">Next</button>
+                </li>
+              </ul>
+            </nav>
+          </div>
         </div>
-        {/* <div>
-          <h2 className='text-dark mb-3'>Dropped Items</h2>
-          {droppedItems.map((item, index) => (
-            <div key={index} className="bg-light p-2 mb-2">{item.table}</div>
-          ))}
-        </div> */}
-        <nav className="mt-4">
-          <ul className="pagination justify-content-center">
-            {[...Array(Math.ceil(records.length / recordsPerPage)).keys()].map(number => (
-              <li key={number} className={`page-item ${currentPage === number + 1 ? 'active' : ''}`}>
-                <button onClick={() => paginate(number + 1)} className="page-link">{number + 1}</button>
-              </li>
-            ))}
-          </ul>
-        </nav>
-      </div>
-      </div>
       </div>
     </DndProvider>
   );

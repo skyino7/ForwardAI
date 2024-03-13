@@ -434,10 +434,10 @@ app.post('/upload', upload.single('sqlFile'), async (req, res) => {
       } catch (error) {
         console.error('Error executing SQL statement:', error);
         // Only drop the database if it didn't exist before the file upload
-        if (!databaseExists) {
-          await connection1.query(`DROP DATABASE IF EXISTS ${mysql.escapeId(databaseName)}`);
-          console.log(`Database ${databaseName} dropped due to error.`);
-        }
+        // if (!databaseExists) {
+        //   await connection1.query(`DROP DATABASE IF EXISTS ${mysql.escapeId(databaseName)}`);
+        //   console.log(`Database ${databaseName} dropped due to error.`);
+        // }
         connection1.release();
         await unlinkAsync(req.file.path);
         return res.status(500).send('Error executing SQL statement, database dropped');
@@ -457,7 +457,7 @@ app.post('/upload-csv', upload.single('csvFile'), async (req, res) => {
     host: process.env.DB_HOST,
     user: process.env.DB_USER,
     password: process.env.DB_PASSWORD,
-    database: 'classicmodels',
+    database: 'world',
   });
 
   const csvFilePath = req.file.path;
@@ -543,7 +543,7 @@ app.get('/logout', (req, res) => {
 //   host: process.env.DB_HOST,
 //   user: process.env.DB_USER,
 //   password: process.env.DB_PASSWORD,
-//   database: 'classicmodels',
+//   database: 'world',
 // };
 
 // const pool3 = mysql.createPool(dbConfig2);
@@ -555,7 +555,7 @@ app.get('/tables', async (req, res) => {
     host: process.env.DB_HOST,
     user: process.env.DB_USER,
     password: process.env.DB_PASSWORD,
-    database: 'classicmodels',
+    database: 'world',
   };
 
   const pool = mysql.createPool(dbConfig);
@@ -588,7 +588,7 @@ app.get('/tables/:tableName', async (req, res) => {
     host: process.env.DB_HOST,
     user: process.env.DB_USER,
     password: process.env.DB_PASSWORD,
-    database: 'classicmodels',
+    database: 'world',
   };
 
   console.log('Database configuration:', dbConfig); // Debug: log the database configuration
@@ -629,7 +629,7 @@ app.get('/records/:tableName', async (req, res) => {
     host: process.env.DB_HOST,
     user: process.env.DB_USER,
     password: process.env.DB_PASSWORD,
-    database: 'classicmodels',
+    database: 'world',
   };
 
   const pool = mysql.createPool(dbConfig);
@@ -665,7 +665,7 @@ app.put('/tables/:tableName/records', async (req, res) => {
     host: process.env.DB_HOST,
     user: process.env.DB_USER,
     password: process.env.DB_PASSWORD,
-    database: 'classicmodels',
+    database: 'world',
   };
 
   try {
@@ -727,7 +727,7 @@ app.post('/records', async (req, res) => {
     host: process.env.DB_HOST,
     user: process.env.DB_USER,
     password: process.env.DB_PASSWORD,
-    database: 'classicmodels',
+    database: 'world',
   };
 
   const pool = mysql.createPool(dbConfig);
@@ -735,27 +735,18 @@ app.post('/records', async (req, res) => {
   const { query } = req.body;
 
   try {
-    const connection = await pool3.getConnection();
+    const connection = await pool.getConnection();
+    const [rows, fields] = await connection.query(query);
+    connection.release();
 
-    // Parse user input and generate SQL queries
-    const parsedInput = await parseUserInput(query);
-    const sqlQueries = parseAndGenerateSQL(parsedInput);
+    // Extract column names
+    const columns = fields.map(field => field.name);
 
-    // Execute SQL queries against the database
-    const results = [];
-    for (const sqlQuery of sqlQueries) {
-      const [rows, fields] = await executeQuery(connection, sqlQuery);
-      results.push(rows);
-      console.log(rows);
-    }
-
-    // Send combined results to client
-    res.json(results);
+    res.json({ records: rows, columns });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Internal server error' });
+    console.error('Error fetching records:', error);
+    res.status(500).json({ error: 'Query syntax error. Please check your query and try again.' });
   }
-
 });
 
 const dbConfig1 = {
@@ -763,117 +754,75 @@ const dbConfig1 = {
   host: process.env.DB_HOST,
   user: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
-  database: 'classicmodels',
+  database: 'world',
 };
 
-const pool3 = mysql.createPool(dbConfig1);
+// const pool3 = mysql.createPool(dbConfig1);
 
-app.post('/query', async (req, res) => {
-
-  const { query } = req.body;
-
+// Function to establish database connection
+async function establishDatabaseConnection() {
   try {
+    // Create a connection pool using mysql2
+    const pool3 = await mysql.createPool(dbConfig1);
+    // Get a connection from the pool
     const connection = await pool3.getConnection();
-
-    // Parse user input and generate SQL queries
-    const parsedInput = await parseUserInput(query);
-    const sqlQueries = parseAndGenerateSQL(parsedInput);
-
-    // Execute SQL queries against the database
-    const results = [];
-    for (const sqlQuery of sqlQueries) {
-      const [rows, fields] = await executeQuery(connection, sqlQuery);
-      results.push(rows);
-      console.log(rows);
-    }
-
-    // Send combined results to client
-    res.json(results);
+    return connection;
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Internal server error' });
+    console.error('Error establishing database connection:', error);
+    throw error;
   }
+}
 
-});
+// Function to execute SQL queries against the database
+async function executeQuery(query, values = []) {
+  try {
+    // Establish database connection
+    const connection = await establishDatabaseConnection();
+    // Execute query
+    const [results, fields] = await connection.query(query, values);
+    // Release connection back to the pool
+    connection.release();
+    console.log('Query results:', results); // Log query results
+    console.log('Query fields:', fields); // Log query fields
+    return [results, fields];
+  } catch (error) {
+    console.error('Error executing query:', error);
+    throw error; // Rethrow the error to be caught by the route handler
+  }
+}
 
 // Function to parse user input and generate SQL queries
-function parseAndGenerateSQL(userInput) {
+async function parseAndGenerateSQL(userInput) {
   try {
-    // Parse user input using NLP library
-    const parsedInput = parseUserInput(userInput);
-    console.log(parsedInput); // Log parsedInput to check its structure
-
-    // Extract keywords and entities from parsed input
-    const keywords = parsedInput.keywords;
-    const entities = parsedInput.entities;
-
-    // Ensure entities is defined and an array before filtering
-    if (Array.isArray(entities)) {
-      // Filter database entities mentioned by the user
-      const databaseEntities = entities.filter(entity => isDatabaseEntity(entity));
-
-      // Generate SQL queries based on identified entities and keywords
-      const sqlQueries = databaseEntities.map(entity => generateSQLQuery(entity, keywords));
-
-      return sqlQueries;
-    } else {
-      console.error('Entities is not an array:', entities);
-      return [];
-    }
-  } catch (error) {
-    console.error('Error parsing and generating SQL:', error);
-    return [];
-  }
-}
-
-// Function to parse user input using NLP library (replace with actual implementation)
-async function parseUserInput(userInput) {
-  try {
-    // Placeholder implementation
-    // Query your database schema to get the list of tables and columns
-    const tablesQuery = `SHOW TABLES`;
-    const tablesResult = await executeQuery(tablesQuery);
-    const tables = tablesResult[0].map(table => table[`Tables_in_classicmodels`]); // Update database name here
-
-    const columns = [];
-
-    for (const table of tables) {
-      const columnsQuery = `SHOW COLUMNS FROM ${table}`;
-      const tableColumnsResult = await executeQuery(columnsQuery);
-      const tableColumns = tableColumnsResult[0].map(column => column.Field);
-      columns.push(...tableColumns);
-    }
-
-    const entities = [...tables, ...columns]; // Combine tables and columns as entities
+    // Placeholder implementation for parsing user input
+    const entities = ['city', 'country', 'products']; // Sample entities
     return {
       keywords: ['top', 'find'], // Sample keywords extracted
-      entities: entities // Ensure entities is properly populated
+      entities: entities // Ensure entities are properly populated
     };
   } catch (error) {
-    console.error('Error parsing user input:', error);
-    // Return default entities in case of error
+    console.error('Error parsing and generating SQL:', error);
     return {
       keywords: ['top'], // Sample keywords extracted
-      entities: ['customers'] // Sample entities extracted
+      entities: ['city', 'country'] // Sample entities extracted
     };
   }
 }
-
-
 
 // Function to generate SQL query based on user input
 function generateSQLQuery(entity, keywords) {
   // Generate SQL query based on the identified entity and keywords
-  let sqlQuery = `SELECT * FROM ${entity}`;
-
-  // Add WHERE clause based on keywords (e.g., filtering by specific criteria)
-  if (keywords.includes('top')) {
-    sqlQuery += ' ORDER BY customer_id DESC LIMIT 10'; // Assuming customer_id is the primary key
-  } else {
-    sqlQuery += ' LIMIT 10'; // Add default behavior when no keywords are detected
+  if (keywords.includes('find') && keywords.includes('top')) {
+    const match = entity.match(/find\s+top\s+(\d+)\s+(\w+)/i);
+    if (match && match.length >= 3) {
+      const limit = parseInt(match[1]);
+      const tablename = match[2];
+      const sqlQuery = `SELECT * FROM ${tablename} ORDER BY id DESC LIMIT ${limit}`;
+      console.log('Generated SQL query:', sqlQuery); // Log the generated SQL query
+      return sqlQuery;
+    }
   }
-
-  return sqlQuery;
+  return null; // Return null if the query doesn't match the pattern
 }
 
 // Function to determine if an entity corresponds to a database entity
@@ -882,34 +831,47 @@ async function isDatabaseEntity(entity) {
     // Query to check if the entity is a table name
     const tableQuery = `SHOW TABLES LIKE '${entity}'`;
     const tableResults = await executeQuery(tableQuery);
-
-    if (tableResults.length > 0) {
+    if (tableResults[0].length > 0) {
       return true; // The entity is a table name
     }
-
     // Query to check if the entity is a column name in any table
     const columnQuery = `SELECT column_name FROM information_schema.columns WHERE column_name = ?`;
     const columnResults = await executeQuery(columnQuery, [entity]);
-
-    console.log(columnResults); // Debug: log the column results for debugging purposes
-    console.log(columnResults.length); // Debug: log the length of the column results for debugging purposes
-    console.log(columnResults[0]); // Debug: log the first column result for debugging purposes
-    console.log(columnResults[0].column_name); // Debug: log the column name for debugging purposes
-    console.log(columnResults[0].column_name === entity); // Debug: log the comparison between the column name and the entity for debugging purposes
-    console.log(columnResults[0].column_name === entity ? true : false); // Debug: log the comparison result for debugging purposes
-    console.log(columnResults[0].column_name === entity ? true : false ? true : false); // Debug: log the comparison result for debugging purposes
-    console.log(columnResults[0].column_name === entity ? true : false ? true : false ? true : false); // Debug: log the comparison result for debugging purposes
-
-    if (columnResults.length > 0) {
+    if (columnResults[0].length > 0) {
       return true; // The entity is a column name
     }
-
     return false; // The entity is not found in tables or columns
   } catch (error) {
     console.error('Error checking database entity:', error);
     return false; // Return false in case of error
   }
 }
+
+// Route handler for handling queries
+app.post('/query', async (req, res) => {
+  const { query } = req.body;
+  try {
+    // Parse user input and generate SQL queries
+    const parsedInput = await parseAndGenerateSQL(query);
+    const { keywords, entities } = parsedInput;
+
+    // Filter valid database entities
+    const validEntities = await Promise.all(entities.map(entity => isDatabaseEntity(entity)));
+    const databaseEntities = entities.filter((entity, index) => validEntities[index]);
+
+    // Generate SQL queries based on identified entities and keywords
+    const sqlQueries = databaseEntities.map(entity => generateSQLQuery(entity, keywords)).filter(query => query !== null);
+
+    // Execute SQL queries against the database
+    const results = await Promise.all(sqlQueries.map(sqlQuery => executeQuery(sqlQuery)));
+
+    // Send combined results to client
+    res.json(results.map(([rows]) => rows));
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
 
 // Function to execute SQL queries against the database
 // function executeQuery(connection, query, values = []) {
@@ -923,44 +885,6 @@ async function isDatabaseEntity(entity) {
 //       });
 //   });
 // }
-
-// Function to execute SQL queries
-async function executeQuery(query) {
-  try {
-    // Placeholder implementation to execute query on database
-    // Replace this with your actual database connection and query execution logic
-    const connection = await establishDatabaseConnection();
-    const result = await connection.query(query); // Ensure connection object has query function
-    return result;
-  } catch (error) {
-    throw error;
-  }
-}
-
-// Function to establish database connection (replace with actual implementation)
-async function establishDatabaseConnection() {
-  try {
-    // Define your database connection configuration
-    const connectionConfig = {
-      connectionLimit: 10,
-      host: process.env.DB_HOST,
-      user: process.env.DB_USER,
-      password: process.env.DB_PASSWORD,
-      database: 'classicmodels',
-    };
-
-    // Create a connection pool using mysql2
-    const pool = await mysql.createPool(connectionConfig);
-
-    // Get a connection from the pool
-    const connection = await pool.getConnection();
-
-    return connection;
-  } catch (error) {
-    console.error('Error establishing database connection:', error);
-    throw error;
-  }
-}
 
 // Start the server
 app.listen(port, () => {

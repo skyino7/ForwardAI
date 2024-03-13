@@ -62,15 +62,15 @@ function App() {
           : (<Route path="/login" element={<Login />} />)} */}
 
 
-          <Route path="/Dashboard" element={isAuthenticated ? <Dashboard /> : <Navigate to="/login" />} />
+          {/* <Route path="/Dashboard" element={isAuthenticated ? <Dashboard /> : <Navigate to="/login" />} />
           <Route path="/ClientForm" element={isAuthenticated ? <ClientForm /> : <Navigate to="/login" />} />
           <Route exact path="/TableList" element={isAuthenticated ? <TableList /> : <Navigate to="/login" />} />
-          <Route path="/tables/:tableName" element={isAuthenticated ? <TableDetails /> : <Navigate to="/login" />} />
+          <Route path="/tables/:tableName" element={isAuthenticated ? <TableDetails /> : <Navigate to="/login" />} /> */}
 
-          {/*<Route path="/Dashboard" element={<Dashboard />} />
+          <Route path="/Dashboard" element={<Dashboard />} />
           <Route path="/ClientForm" element={<ClientForm />} />
           <Route exact path="/TableList" element={<TableList />} />
-        <Route path="/tables/:tableName" element={<TableDetails />} />*/}
+        <Route path="/tables/:tableName" element={<TableDetails />} />
 
 
               {/* <QueryBuilder /> */}
