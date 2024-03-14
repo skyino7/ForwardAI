@@ -16,6 +16,8 @@ import QueryBuilder from "./admin/Components/QueryBuilder";
 import NotFound from "./pages/NotFound";
 import UploadCsv from "./admin/Components/UploadCsv";
 import NaturalQuery from "./admin/Components/NaturalQuery";
+import Chart from "./admin/Components/Chart";
+import ChartComponent from "./admin/Components/ChartComponent";
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -78,6 +80,8 @@ function App() {
           <Route path="/QueryBuilder" element={<QueryBuilder />} />
           <Route path="/UploadCsv" element={<UploadCsv />} />
           <Route path="/NaturalQuery" element={<NaturalQuery/>} />
+          <Route path="/Chart" element={<Chart/>} />
+          <Route path="/ChartComponent" element={<ChartComponent/>} />
           <Route path="*" element={<NotFound />} />
 
         </Route>

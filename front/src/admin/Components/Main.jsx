@@ -174,9 +174,12 @@ const Main = () => {
     <div className="container-fluid">
         <div className="row flex-nowrap">
             <Topbar/>
-            <div className="col py-3 pt-5 p col-lg-4">
+            <div className="col py-3 pt-5">
               <div className="container">
-              <div className="card">
+              <h3 className='py-3'>Welcome, Seth</h3>
+                <div className="row">
+              <div className="col-md-6">
+                <div className='card mr-5'>
                 <div class="card-header">
                   <h1>Upload SQL Script</h1>
                 </div>
@@ -186,7 +189,9 @@ const Main = () => {
                   {message && <p className="mt-3 p-3 mb-2 bg-danger text-white">{message}</p>}
                 </div>
               </div>
-              <UploadCsv />
+              </div>
+                <UploadCsv />
+              </div>
             </div>
             </div>
         </div>

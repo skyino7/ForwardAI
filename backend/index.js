@@ -37,31 +37,32 @@ const dbConfig = {
   host: process.env.DB_HOST,
   user: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
+  database: {}
 };
 
 const pool = mysql.createPool(config);
 const pool2 = mysql.createPool(dbConfig);
 
-const CLIENT_ID = process.env.CLIENT_ID;
-const CLIENT_SECRET = process.env.CLIENT_SECRET;
-const REDIRECT_URI = process.env.REDIRECT_URI;
-const REFRESH_TOKEN = process.env.REFRESH_TOKEN;
+// const CLIENT_ID = process.env.CLIENT_ID;
+// const CLIENT_SECRET = process.env.CLIENT_SECRET;
+// const REDIRECT_URI = process.env.REDIRECT_URI;
+// const REFRESH_TOKEN = process.env.REFRESH_TOKEN;
 
-const myOAuth2Client = new OAuth2Client(CLIENT_ID, CLIENT_SECRET, REDIRECT_URI);
+// const myOAuth2Client = new OAuth2Client(CLIENT_ID, CLIENT_SECRET, REDIRECT_URI);
 
-myOAuth2Client.setCredentials({ refresh_token: REFRESH_TOKEN });
+// myOAuth2Client.setCredentials({ refresh_token: REFRESH_TOKEN });
 
-const transporter = nodemailer.createTransport({
-  service: 'gmail',
-  auth: {
-    type: 'OAuth2',
-    user: process.env.EMAIL_USER,
-    clientId: CLIENT_ID,
-    clientSecret: CLIENT_SECRET,
-    refreshToken: REFRESH_TOKEN,
-    accessToken: myOAuth2Client.getAccessToken(),
-  },
-});
+// const transporter = nodemailer.createTransport({
+//   service: 'gmail',
+//   auth: {
+//     type: 'OAuth2',
+//     user: process.env.EMAIL_USER,
+//     clientId: CLIENT_ID,
+//     clientSecret: CLIENT_SECRET,
+//     refreshToken: REFRESH_TOKEN,
+//     accessToken: myOAuth2Client.getAccessToken(),
+//   },
+// });
 
 const API_KEY = process.env.OPENAI_API_KEY;
 
@@ -252,7 +253,7 @@ app.post('/isAuthenticated', async (req, res) => {
     // Extract token from URL parameter
     const authHeader =req.headers['authorization'];
     const token = authHeader && authHeader.split(' ')[1];
-    console.log(token);
+    // console.log(token);
 
     let auth = {
       isAuthenticated : false
@@ -286,7 +287,7 @@ function isAuthenticated(req, res, next) {
     // Extract token from URL parameter
     const authHeader =req.headers['authorization'];
     const token = authHeader && authHeader.split(' ')[1];
-    console.log(token);
+    // console.log(token);
 
     let auth = {
       isAuthenticated : false
@@ -300,7 +301,7 @@ function isAuthenticated(req, res, next) {
         if(err){
           return res.status(401).json(auth);
         }
-        console.log(decoded);
+        // console.log(decoded);
         next();
       });
     }else{
@@ -762,9 +763,7 @@ const dbConfig1 = {
 // Function to establish database connection
 async function establishDatabaseConnection() {
   try {
-    // Create a connection pool using mysql2
     const pool3 = await mysql.createPool(dbConfig1);
-    // Get a connection from the pool
     const connection = await pool3.getConnection();
     return connection;
   } catch (error) {
@@ -885,6 +884,73 @@ app.post('/query', async (req, res) => {
 //       });
 //   });
 // }
+
+const dummyData = [
+  { month: 'January', revenue: 1000 },
+  { month: 'February', revenue: 1500 },
+  { month: 'March', revenue: 2000 },
+  { month: 'April', revenue: 500 },
+  { month: 'May', revenue: 5000 },
+];
+
+app.get('/data', (req, res) => {
+  res.json(dummyData);
+});
+
+const dbConfig3 = {
+  connectionLimit: 10,
+  host: process.env.DB_HOST,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: 'world',
+};
+
+app.get('/api/tables', async (req, res) => {
+  const pool5 = mysql.createPool(dbConfig3);
+  try {
+    const connection = await pool5.getConnection();
+    const [rows] = await connection.query('SHOW TABLES');
+    connection.release();
+    const tables = rows.map(result => result[`Tables_in_${dbConfig3.database}`]); // Access database directly from dbConfig3
+    res.json(tables);
+  } catch (error) {
+    console.error('Error fetching tables:', error);
+    res.status(500).json({ error: 'Error fetching tables' });
+  }
+});
+
+// Route to fetch columns based on table name
+app.get('/api/columns/:table', async (req, res) => {
+  const pool5 = mysql.createPool(dbConfig3);
+  const { table } = req.params;
+  try {
+    const connection = await pool5.getConnection();
+    const [rows] = await connection.query(`SHOW COLUMNS FROM ${table}`);
+    connection.release();
+    const columns = rows.map(result => result.Field);
+    res.json(columns);
+  } catch (error) {
+    console.error(`Error fetching columns for table ${table}:`, error);
+    res.status(500).json({ error: `Error fetching columns for table ${table}` });
+  }
+});
+
+// Route to fetch data based on table and column
+app.get('/api/data/:table/:column', async (req, res) => {
+  const pool5 = mysql.createPool(dbConfig3);
+  const { table, column } = req.params;
+  try {
+    const connection = await pool5.getConnection();
+    const [rows] = await connection.query(`SELECT ${column} FROM ${table}`);
+    connection.release();
+    const data = rows.map(result => result[column]);
+    res.json(data);
+  } catch (error) {
+    console.error(`Error fetching data for table ${table} and column ${column}:`, error);
+    res.status(500).json({ error: `Error fetching data for table ${table} and column ${column}` });
+  }
+});
+
 
 // Start the server
 app.listen(port, () => {

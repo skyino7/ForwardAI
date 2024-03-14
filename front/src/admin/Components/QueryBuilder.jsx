@@ -176,7 +176,8 @@ const QueryBuilder = () => {
       <div className="container-fluid">
         <div className="row flex-nowrap">
           <Topbar />
-          <div className='col py-3 px-5 pt-5 p col-lg-10 my-5'>
+          <div className='col py-3 pt-5'>
+          <div className="container col-md-12">
             <h1 className='mb-4'>Query Builder</h1>
             <h3 className='mb-4 shadow-sm p-3 mb-5 bg-body rounded'>Tables In the Database</h3>
             <div className="row mb-4">
@@ -261,6 +262,7 @@ const QueryBuilder = () => {
                 </li>
               </ul>
             </nav>
+            </div>
           </div>
         </div>
       </div>

@@ -43,7 +43,8 @@ function UploadCsv() {
     };
 
     return (
-        <div className='card my-5'>
+        <div className='col-md-6'>
+            <div className="card">
             <div class="card-header">
                   <h1>Upload CSV Script</h1>
                 </div>
@@ -63,6 +64,7 @@ function UploadCsv() {
             {message && (
                 <p className='mt-3 p-3 mb-2 bg-info text-white'>{message}</p>
             )}
+            </div>
             </div>
         </div>
     );
