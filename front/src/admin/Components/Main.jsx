@@ -176,7 +176,7 @@ const Main = () => {
             <Topbar/>
             <div className="col py-3 pt-5">
               <div className="container">
-              <h3 className='py-3'>Welcome, Seth</h3>
+              <h3 className='py-3'>Welcome, Seth!</h3>
                 <div className="row">
               <div className="col-md-6">
                 <div className='card mr-5'>
@@ -184,8 +184,12 @@ const Main = () => {
                   <h1>Upload SQL Script</h1>
                 </div>
                 <div class="card-body">
-                  <input type="file" onChange={handleFileChange} />
-                  <button className="btn btn-primary" onClick={handleUpload}>Upload</button>
+                  <div className="input-group">
+                    <input type="file" class="form-control" id="inputGroupFile01" onChange={handleFileChange} />
+                    <button className="input-group-text btn btn-primary" for="inputGroupFile01" onClick={handleUpload}>Upload</button>
+                    {/* <input type="file" onChange={handleFileChange} />
+                    <button className="btn btn-primary" onClick={handleUpload}>Upload</button> */}
+                  </div>
                   {message && <p className="mt-3 p-3 mb-2 bg-danger text-white">{message}</p>}
                 </div>
               </div>

@@ -162,7 +162,7 @@ function TableDetails() {
     <div className="container-fluid">
       <div className="row flex-nowrap">
         <Topbar />
-        <div className="col py-3 pt-5 p col-lg-4">
+        <div className="col py-3 pt-5">
           {error && <div className="alert alert-danger">{error}</div>}
           {tableData && tableData.table && (
             <>
@@ -197,8 +197,8 @@ function TableDetails() {
                 </Modal>
               )}
               {tableData.records && tableData.records.length > 0 ? (
-                <div className="table table-sm">
-                  <table className="table table-bordered">
+                <div className="table table-sm" style={{ width: '100%' }}>
+                  <table className="table table-bordered card-table">
                     <thead className='text-uppercase'>
                       <tr>
                         {Object.keys(tableData.records[0]).map((key, index) => (

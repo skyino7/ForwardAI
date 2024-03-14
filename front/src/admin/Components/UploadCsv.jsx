@@ -46,11 +46,15 @@ function UploadCsv() {
         <div className='col-md-6'>
             <div className="card">
             <div class="card-header">
-                  <h1>Upload CSV Script</h1>
+                  <h1>Upload CSV File</h1>
                 </div>
             <div className="card-body">
-            <input type="file" onChange={handleFileChange} />
-            <button className='btn btn-primary' onClick={handleUpload}>Upload</button>
+                <div className="input-group">
+                    <input type="file" class="form-control" id="inputGroupFile01" onChange={handleFileChange} />
+                    <button className="input-group-text btn btn-primary" for="inputGroupFile01" onClick={handleUpload}>Upload</button>
+                    {/* <input type="file" onChange={handleFileChange} />
+                    <button className='btn btn-primary' onClick={handleUpload}>Upload</button> */}
+                </div>
             {columns.length > 0 && (
                 <div>
                     <h3>Column Headers</h3>

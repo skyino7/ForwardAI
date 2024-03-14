@@ -1,0 +1,12 @@
+USE classicmodels;
+
+CREATE TABLE mytable(
+   identifier    INTEGER  NOT NULL PRIMARY KEY
+  ,"first name"  VARCHAR(5) NOT NULL
+  ,"last name"   VARCHAR(7) NOT NULL
+  ,"login email" VARCHAR(17) NOT NULL
+);
+INSERT INTO mytable(identifier,"first name","last name","login email") VALUES (2070,'Laura','Grey','laura@example.com');
+INSERT INTO mytable(identifier,"first name","last name","login email") VALUES (4081,'Craig','Johnson','craig@example.com');
+INSERT INTO mytable(identifier,"first name","last name","login email") VALUES (9346,'Mary','Jenkins','mary@example.com');
+INSERT INTO mytable(identifier,"first name","last name","login email") VALUES (5079,'Jamie','Smith','jamie@example.com');
