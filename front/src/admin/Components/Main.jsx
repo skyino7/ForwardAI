@@ -181,9 +181,6 @@ const Main = () => {
                   <h1>Upload SQL Script</h1>
                 </div>
                 <div class="card-body">
-                  {/* <div className="card-title">
-                    <h1>Upload SQL Script</h1>
-                  </div> */}
                   <input type="file" onChange={handleFileChange} />
                   <button className="btn btn-primary" onClick={handleUpload}>Upload</button>
                   {message && <p className="mt-3 p-3 mb-2 bg-danger text-white">{message}</p>}

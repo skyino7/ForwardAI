@@ -145,6 +145,11 @@ function Topbar() {
                             <i className="fs-4 bi-people"></i> <span className="ms-1 d-none d-sm-inline">Database</span>
                         </a>
                     </li>
+                    <li>
+                        <a href="/NaturalQuery" className="text-white nav-link px-0 align-middle">
+                            <i className="fs-4 bi-people"></i> <span className="ms-1 d-none d-sm-inline">NLQ</span>
+                        </a>
+                    </li>
                 </ul>
                 <hr />
                 <div className="dropdown pb-4">

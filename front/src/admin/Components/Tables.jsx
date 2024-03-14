@@ -26,7 +26,7 @@ function TableList() {
     <div className="container-fluid">
       <div className="row flex-nowrap">
         <Topbar />
-        <div className="col py-3 pt-5 p col-lg-4">
+        <div className="col py-3 pt-5">
           <h2 className='text-dark text-uppercase fw-bold pb-5'>Tables with Records</h2>
           {tables.map((table, index) => (
             <div key={index}>
