@@ -56,8 +56,8 @@ function UploadCsv() {
                     <button className='btn btn-primary' onClick={handleUpload}>Upload</button> */}
                 </div>
             {columns.length > 0 && (
-                <div>
-                    <h3>Column Headers</h3>
+                <div className='pt-3'>
+                    <h3>Table Column Headers</h3>
                     <ul>
                         {columns.map((column, index) => (
                             <li key={index}>{column}</li>

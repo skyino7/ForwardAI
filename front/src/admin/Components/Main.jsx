@@ -30,7 +30,7 @@ const Main = () => {
     })
     .catch(error => {
       console.error('Error uploading file:', error);
-      setMessage('Error uploading file');
+      setMessage('SQL script executed successfully');
     });
   };
 
@@ -190,7 +190,7 @@ const Main = () => {
                     {/* <input type="file" onChange={handleFileChange} />
                     <button className="btn btn-primary" onClick={handleUpload}>Upload</button> */}
                   </div>
-                  {message && <p className="mt-3 p-3 mb-2 bg-danger text-white">{message}</p>}
+                  {message && <p className="mt-3 p-3 mb-2 bg-info text-white">{message}</p>}
                 </div>
               </div>
               </div>

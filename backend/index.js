@@ -37,7 +37,6 @@ const dbConfig = {
   host: process.env.DB_HOST,
   user: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
-  database: {}
 };
 
 const pool = mysql.createPool(config);
@@ -209,7 +208,7 @@ app.post('/signup', async (req, res) => {
 
     // Check if the user was successfully created
     if (result.affectedRows > 0) {
-      await sendVerificationEmail(email, verificationToken, name);
+      // await sendVerificationEmail(email, verificationToken, name);
       return res.status(201).json({ message: 'User created successfully' });
     } else {
       throw new Error('Failed to create user');
@@ -252,8 +251,8 @@ app.post('/isAuthenticated', async (req, res) => {
 
     // Extract token from URL parameter
     const authHeader =req.headers['authorization'];
-    const token = authHeader && authHeader.split(' ')[1];
-    // console.log(token);
+    const token = authHeader.split(' ')[1];
+    // console.log("api token", token);
 
     let auth = {
       isAuthenticated : false
@@ -267,8 +266,8 @@ app.post('/isAuthenticated', async (req, res) => {
         if(err){
           return res.status(401).json(auth);
         }
-        console.log(decoded);
-        auth.isAuthenticated = false;
+        // console.log(decoded);
+        auth.isAuthenticated = true;
         return res.status(200).json(auth);
       });
     }else{
@@ -282,7 +281,6 @@ app.post('/isAuthenticated', async (req, res) => {
 
 // Middleware to check if user is authenticated
 function isAuthenticated(req, res, next) {
-
 
     // Extract token from URL parameter
     const authHeader =req.headers['authorization'];

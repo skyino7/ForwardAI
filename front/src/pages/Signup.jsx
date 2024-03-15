@@ -36,7 +36,8 @@ const Signup = () => {
       console.log(responseData.message);
 
       // Redirect to a verification pending page
-      window.location.href = '/VerificationPending';
+      // window.location.href = '/VerificationPending';
+      window.location.href = '/login';
       } else if (response.status === 204) {
         console.log('Waiting for Verification');
       } else {

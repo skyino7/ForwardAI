@@ -5,7 +5,6 @@ import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import { fas } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import Person from '../../assets/person.jpg';
-import Logout from './Logout';
 
 function Topbar() {
     // const [dashboardOpen, setDashboardOpen] = useState(true);
@@ -37,6 +36,7 @@ function Topbar() {
 
                 const data = await response.json();
                 setUserName(data.name);
+                // console.log("Data:" + data);
             } catch (error) {
                 console.error('Error fetching user details:', error);
             }

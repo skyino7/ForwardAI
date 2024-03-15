@@ -10,7 +10,8 @@ const Login = () => {
 
   const navigate = useNavigate();
   const [redirect, setRedirect] = useState(false)
-  const [message, setMessage] = useState('');
+  const [message, setMessage] = useState('')
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   const [formData, setFormData] = useState({
     email: '',
@@ -44,7 +45,8 @@ const Login = () => {
         // console.log(token);
         setRedirect(true);
         setMessage('Login Successful');
-        navigate('/Dashboard');
+        // navigate('/Dashboard');
+        // isAuthenticated(true);
       } else {
         setMessage('Login Failed');
       }
