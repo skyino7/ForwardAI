@@ -146,7 +146,7 @@ async function createUserTable() {
     // Create the users table
     await createUserTable(conn);
   } catch (err) {
-    console.error("Overall error :", err);
+    console.error("Overall error: ", err);
   }
 })();
 
