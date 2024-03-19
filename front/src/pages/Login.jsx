@@ -42,7 +42,6 @@ const Login = () => {
         const data = await response.json();
         const token = data.token;
         localStorage.setItem("token", token)
-        // console.log(token);
         setRedirect(true);
         setMessage('Login Successful');
         // navigate('/Dashboard');
@@ -58,7 +57,6 @@ const Login = () => {
 
   if (redirect){
     return <Navigate to={'/dashboard'} />
-    // window.location.href = '/admin/dashboard';
   }
 
   return (
