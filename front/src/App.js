@@ -76,10 +76,10 @@ function App() {
           <Route path="/ChartComponent" element={<ChartComponent/>} />
           <Route path="*" element={<NotFound />} />
 
-          <Route path="/Dashboard" element={isAuthenticated ? <Dashboard /> : <Navigate to="/login" />} />
+          {/* <Route path="/Dashboard" element={isAuthenticated ? <Dashboard /> : <Navigate to="/login" />} />
           <Route path="/ClientForm" element={isAuthenticated ? <ClientForm /> : <Navigate to="/login" />} />
           <Route exact path="/TableList" element={isAuthenticated ? <TableList /> : <Navigate to="/login" />} />
-          <Route path="/tables/:tableName" element={isAuthenticated ? <TableDetails /> : <Navigate to="/login" />} />
+          <Route path="/tables/:tableName" element={isAuthenticated ? <TableDetails /> : <Navigate to="/login" />} /> */}
 
         </Route>
       </Routes>
