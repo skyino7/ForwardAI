@@ -40,7 +40,7 @@ const ChartComponent = () => {
   };
 
   useEffect(() => {
-    // fetchData(); // Call fetchData initially when the component mounts
+    fetchData(); // Call fetchData initially when the component mounts
   }, []); // Empty dependency array to trigger the effect only once
 
   useEffect(() => {
@@ -79,9 +79,23 @@ const ChartComponent = () => {
     const width = 600 - margin.left - margin.right;
     const height = 400 - margin.top - margin.bottom;
 
-    // Sort chartData by selectedColumn
-    const sortedChartData = chartData.filter(data => data && data[selectedColumn] !== null && data[selectedColumn] !== undefined);
-    sortedChartData.sort((a, b) => a[selectedColumn] - b[selectedColumn]);
+    // Filter out null or undefined values for selectedColumn
+    // Filter out null or undefined values for selectedColumn after converting to numbers
+    const filteredData = chartData.filter(data => !isNaN(Number(data[selectedColumn])));
+
+    // Check if there's any data left after filtering
+    if (filteredData.length === 0) {
+      console.log('No valid data available to create chart.');
+      return;
+    }
+
+    // Convert values to numbers for sorting
+    filteredData.forEach(data => {
+      data[selectedColumn] = Number(data[selectedColumn]);
+    });
+
+    // Sort filtered data by selectedColumn
+    filteredData.sort((a, b) => a[selectedColumn] - b[selectedColumn]);
 
     // Create SVG container
     const svg = d3
@@ -95,12 +109,12 @@ const ChartComponent = () => {
     // Create scales
     const x = d3
       .scaleLinear()
-      .domain(d3.extent(sortedChartData, d => d[selectedColumn]))
+      .domain(d3.extent(filteredData, d => d[selectedColumn]))
       .range([0, width]);
 
     const y = d3
       .scaleLinear()
-      .domain([0, d3.max(sortedChartData, d => d[selectedColumn])])
+      .domain([0, d3.max(filteredData, d => d[selectedColumn])])
       .nice()
       .range([height, 0]);
 
@@ -126,13 +140,15 @@ const ChartComponent = () => {
     // Append line to SVG
     svg
       .append('path')
-      .datum(sortedChartData)
+      .datum(filteredData)
       .attr('class', 'line')
       .attr('fill', 'none')
       .attr('stroke', 'steelblue')
       .attr('stroke-width', 1.5)
       .attr('d', line);
   };
+
+
 
 
   const handleTableChange = (event) => {
@@ -147,7 +163,11 @@ const ChartComponent = () => {
   };
 
   const handleCreateChart = () => {
-    fetchData();
+    if (selectedTable && selectedColumn) {
+      fetchData();
+    } else {
+      console.error('Please select a table and a column before creating the chart.');
+    }
   };
 
   return (
