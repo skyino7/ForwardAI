@@ -881,17 +881,17 @@ app.post('/query', async (req, res) => {
 //   });
 // }
 
-const dummyData = [
-  { month: 'January', revenue: 1000 },
-  { month: 'February', revenue: 1500 },
-  { month: 'March', revenue: 2000 },
-  { month: 'April', revenue: 500 },
-  { month: 'May', revenue: 5000 },
-];
+// const dummyData = [
+//   { month: 'January', revenue: 1000 },
+//   { month: 'February', revenue: 1500 },
+//   { month: 'March', revenue: 2000 },
+//   { month: 'April', revenue: 500 },
+//   { month: 'May', revenue: 5000 },
+// ];
 
-app.get('/data', (req, res) => {
-  res.json(dummyData);
-});
+// app.get('/data', (req, res) => {
+//   res.json(dummyData);
+// });
 
 const dbConfig3 = {
   connectionLimit: 10,

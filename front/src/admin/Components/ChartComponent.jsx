@@ -40,7 +40,7 @@ const ChartComponent = () => {
   };
 
   useEffect(() => {
-    fetchData(); // Call fetchData initially when the component mounts
+    // fetchData(); // Call fetchData initially when the component mounts
   }, []); // Empty dependency array to trigger the effect only once
 
   useEffect(() => {
@@ -75,27 +75,24 @@ const ChartComponent = () => {
     d3.select('#chart-container').selectAll('*').remove();
 
     // Define dimensions and margins
-    const margin = { top: 20, right: 30, bottom: 30, left: 40 };
+    const margin = { top: 20, right: 30, bottom: 50, left: 60 }; // Adjust bottom margin for x-axis labels
     const width = 600 - margin.left - margin.right;
     const height = 400 - margin.top - margin.bottom;
 
-    // Filter out null or undefined values for selectedColumn
-    // Filter out null or undefined values for selectedColumn after converting to numbers
-    const filteredData = chartData.filter(data => !isNaN(Number(data[selectedColumn])));
+    // Collect values from the selected column
+    const columnValues = chartData.map(data => data[selectedColumn]);
 
-    // Check if there's any data left after filtering
+    // Filter out null or undefined values and convert to numbers
+    const filteredData = columnValues.filter(value => !isNaN(Number(value)));
+
+    // Check if there's any valid data left
     if (filteredData.length === 0) {
       console.log('No valid data available to create chart.');
       return;
     }
 
     // Convert values to numbers for sorting
-    filteredData.forEach(data => {
-      data[selectedColumn] = Number(data[selectedColumn]);
-    });
-
-    // Sort filtered data by selectedColumn
-    filteredData.sort((a, b) => a[selectedColumn] - b[selectedColumn]);
+    const convertedData = filteredData.map(value => Number(value));
 
     // Create SVG container
     const svg = d3
@@ -108,18 +105,19 @@ const ChartComponent = () => {
 
     // Create scales
     const x = d3
-      .scaleLinear()
-      .domain(d3.extent(filteredData, d => d[selectedColumn]))
-      .range([0, width]);
+      .scaleBand()
+      .domain(chartData.map((_, i) => i)) // Use index as domain for discrete x-axis (column names)
+      .range([0, width])
+      .padding(0.1); // Adjust padding as needed
 
     const y = d3
       .scaleLinear()
-      .domain([0, d3.max(filteredData, d => d[selectedColumn])])
+      .domain([0, d3.max(convertedData)])
       .nice()
       .range([height, 0]);
 
     // Create axes
-    const xAxis = d3.axisBottom(x);
+    const xAxis = d3.axisBottom(x).tickFormat(i => columns[i]); // Use column names as tick labels
     const yAxis = d3.axisLeft(y);
 
     // Append axes to SVG
@@ -127,28 +125,29 @@ const ChartComponent = () => {
       .append('g')
       .attr('class', 'x-axis')
       .attr('transform', `translate(0,${height})`)
-      .call(xAxis);
+      .call(xAxis)
+      .selectAll('text')
+      .attr('transform', 'rotate(-45)') // Rotate x-axis labels for better readability
+      .style('text-anchor', 'end');
 
     svg.append('g').attr('class', 'y-axis').call(yAxis);
 
     // Create line generator
     const line = d3
       .line()
-      .x(d => x(d[selectedColumn]))
-      .y(d => y(d[selectedColumn]));
+      .x((_, i) => x(i) + x.bandwidth() / 2) // Calculate x-position for each data point
+      .y(d => y(d));
 
     // Append line to SVG
     svg
       .append('path')
-      .datum(filteredData)
+      .datum(convertedData)
       .attr('class', 'line')
       .attr('fill', 'none')
       .attr('stroke', 'steelblue')
       .attr('stroke-width', 1.5)
       .attr('d', line);
   };
-
-
 
 
   const handleTableChange = (event) => {
