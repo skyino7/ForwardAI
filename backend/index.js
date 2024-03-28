@@ -67,7 +67,7 @@ const API_KEY = process.env.OPENAI_API_KEY;
 
 // Function to create a database
 async function createDatabase(config) {
-  // Clone the config object to avoid mutating the original
+  // Clone the config object to avoid changing the original
   const connectionConfig = { ...config, database: undefined };
   const conn = await mysql.createConnection(connectionConfig);
 
